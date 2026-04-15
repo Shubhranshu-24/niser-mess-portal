@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- EmailJS — replace init key below after setup -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // Replace with your actual public key from emailjs.com → Account tab
+  if (typeof emailjs !== 'undefined') emailjs.init('YOUR_EMAILJS_PUBLIC_KEY');
+</script>
+<style>
+:root {
+  --bg:       #f5f4f0;
+  --bg2:      #ffffff;
+  --bg3:      #edecea;
+  --bg4:      #e4e2de;
+  --border:   rgba(0,0,0,0.08);
+  --border2:  rgba(0,0,0,0.13);
+  --text:     #1a1917;
+  --muted:    #8a8680;
+  --muted2:   #6b6762;
+  --veg:      #2e7d50;
+  --nonveg:   #c0392b;
+  --accent:   #b5873a;
+  --accent2:  #7c5cbf;
+  --star:     #f0a500;
+  --star-bg:  #e8e4da;
+  --red:      #c0392b;
+  --green:    #2e7d50;
+  --shadow:   0 2px 12px rgba(0,0,0,0.08);
+  --shadow2:  0 4px 24px rgba(0,0,0,0.12);
+  --radius:   12px;
+  --radius2:  8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+/* ───────── SCROLLBAR ───────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg3); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+/* ───────── PAGE SYSTEM ───────── */
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ───────── HEADER ───────── */
+.site-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.header-logo {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #2e7d50 0%, #b5873a 100%);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.header-title { font-size: 16px; font-weight: 800; color: var(--text); line-height: 1.1; }
+.header-sub { font-size: 10px; color: var(--muted); font-weight: 500; letter-spacing: 0.05em; }
+.header-nav { display: flex; align-items: center; gap: 4px; }
+.nav-btn {
+  background: none; border: none;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted2);
+  border-radius: var(--radius2);
+  transition: all 0.15s;
+}
+.nav-btn:hover { background: var(--bg3); color: var(--text); }
+.nav-btn.active { background: var(--bg3); color: var(--text); }
+.nav-btn.primary {
+  background: var(--text);
+  color: #fff;
+  padding: 7px 16px;
+}
+.nav-btn.primary:hover { opacity: 0.85; }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3);
+  border-radius: 20px;
+  padding: 5px 12px 5px 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.user-avatar {
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.hamburger { display: none; background: none; border: none; padding: 6px; font-size: 20px; color: var(--text); }
+@media (max-width: 640px) {
+  .header-nav { display: none; }
+  .header-nav.open { display: flex; flex-direction: column; position: absolute; top: 60px; left: 0; right: 0; background: var(--bg2); border-bottom: 1px solid var(--border); padding: 10px; gap: 2px; z-index: 200; }
+  .hamburger { display: block; }
+}
+
+/* ───────── FOOTER ───────── */
+.site-footer {
+  background: var(--text);
+  color: rgba(255,255,255,0.6);
+  padding: 28px 24px;
+  margin-top: auto;
+  text-align: center;
+  font-size: 12px;
+}
+.site-footer strong { color: #fff; }
+.footer-links { display: flex; gap: 16px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+.footer-links a { color: rgba(255,255,255,0.5); transition: color 0.15s; font-size: 11px; }
+.footer-links a:hover { color: #fff; }
+
+/* ───────── AUTH PAGES ───────── */
+.auth-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: var(--bg);
+}
+.auth-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow2);
+}
+@media (max-width: 480px) { .auth-card { padding: 28px 22px; } }
+.auth-logo {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, #2e7d50, #b5873a);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 900; color: #fff;
+  margin: 0 auto 16px;
+}
+.auth-title { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.auth-sub { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted2); margin-bottom: 5px; letter-spacing: 0.04em; text-transform: uppercase; }
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.form-input:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(124,92,191,0.1); background: var(--bg2); }
+.form-input::placeholder { color: var(--muted); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
+.btn-main {
+  width: 100%;
+  padding: 12px;
+  background: var(--text);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius2);
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 8px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-main:hover { opacity: 0.88; }
+.btn-main:active { transform: scale(0.98); }
+.btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-switch {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.auth-switch a { color: var(--accent2); font-weight: 700; cursor: pointer; }
+.auth-switch a:hover { text-decoration: underline; }
+.form-error { color: var(--red); font-size: 12px; margin-top: 6px; display: none; }
+.form-error.show { display: block; }
+.form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.skip-link { text-align: center; margin-top: 14px; }
+.skip-link a { font-size: 12px; color: var(--muted); cursor: pointer; }
+.skip-link a:hover { color: var(--text); }
+
+/* ───────── MENU PAGE ───────── */
+.menu-hero {
+  background: linear-gradient(135deg, #1a1917 0%, #2e3830 100%);
+  color: #fff;
+  padding: 32px 24px 24px;
+  text-align: center;
+}
+.menu-hero-title { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+.menu-hero-sub { font-size: 13px; opacity: 0.6; }
+.menu-hero-update {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  opacity: 0.45;
+  margin-top: 8px;
+}
+
+/* DAY TABS */
+.day-nav {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+}
+.day-btn {
+  background: var(--bg3);
+  border: 1.5px solid transparent;
+  color: var(--muted2);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.15s;
+  letter-spacing: 0.03em;
+}
+.day-btn:hover { color: var(--text); background: var(--bg4); }
+.day-btn.active {
+  background: var(--text);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* LEGEND */
+.legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  justify-content: center;
+  padding: 12px 24px;
+  background: var(--bg2);
+  font-size: 11px;
+  color: var(--muted2);
+  border-bottom: 1px solid var(--border);
+}
+.leg-item { display: flex; align-items: center; gap: 5px; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* MENU GRID */
+.menu-content { padding: 20px 24px 32px; max-width: 1200px; margin: 0 auto; width: 100%; }
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 900px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .menu-grid { grid-template-columns: 1fr; } }
+
+/* MEAL CARD */
+.meal-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease both;
+}
+.meal-card:nth-child(2) { animation-delay: 0.06s; }
+.meal-card:nth-child(3) { animation-delay: 0.12s; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.meal-header {
+  padding: 12px 16px 11px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg3);
+}
+.meal-title { font-size: 12px; font-weight: 800; color: var(--text); letter-spacing: 0.08em; text-transform: uppercase; }
+.meal-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+.items-list { padding: 4px 0; }
+
+/* ITEM ROWS */
+.item-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px 6px 14px;
+  transition: background 0.12s;
+  position: relative;
+  border-bottom: 1px solid transparent;
+  gap: 8px;
+}
+.item-row:last-child { border-bottom: none; }
+.item-row:hover { background: var(--bg3); }
+.item-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  border-radius: 2px;
+}
+.item-row.veg::before    { background: var(--veg); }
+.item-row.nonveg::before { background: var(--nonveg); }
+
+.item-inner { flex: 1; min-width: 0; }
+.item-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.item-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.item-row.nonveg .item-name { color: #8b2020; }
+.item-row.size-chicken .item-name { font-size: 14px; font-weight: 700; }
+.item-row.size-fish    .item-name { font-size: 14px; font-weight: 700; }
+
+.badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
+.badge {
+  font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 3px; font-weight: 700;
+}
+.badge-salad   { background: rgba(46,125,80,0.1); color: #2e7d50; }
+.badge-dessert { background: rgba(181,135,58,0.12); color: var(--accent); }
+.badge-fruit   { background: rgba(181,135,58,0.12); color: var(--accent); }
+
+/* INLINE RATING */
+.item-rating-inline {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.item-rating-inline .star-val { color: var(--star); font-weight: 700; font-size: 11px; }
+.item-rating-inline .star-icon { color: var(--star); font-size: 12px; }
+.item-rating-inline .count { font-size: 10px; color: var(--muted); }
+
+/* ───────── STAR RATING WIDGET ───────── */
+.star-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  user-select: none;
+}
+.star-widget .star {
+  font-size: 20px;
+  color: var(--star-bg);
+  transition: color 0.12s, transform 0.12s;
+  position: relative;
+}
+.star-widget .star:hover { transform: scale(1.2); }
+.star-widget .star.filled { color: var(--star); }
+.star-widget .star.half-filled {
+  background: linear-gradient(90deg, var(--star) 50%, var(--star-bg) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.decimal-input-wrap { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.decimal-input {
+  width: 64px;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  outline: none;
+}
+.decimal-input:focus { border-color: var(--star); }
+
+/* ───────── REVIEW PAGE ───────── */
+.review-page-wrap { flex: 1; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+.page-section-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.page-section-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.review-day-sel {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.review-day-btn {
+  background: var(--bg3);
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted2);
+  transition: all 0.15s;
+}
+.review-day-btn:hover { background: var(--bg4); color: var(--text); }
+.review-day-btn.active { background: var(--text); color: #fff; }
+
+.meal-review-section { margin-bottom: 28px; }
+.meal-review-title {
+  font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted2); margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--border);
+}
+.food-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.food-review-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.15s;
+}
+.food-review-card:hover { box-shadow: var(--shadow2); }
+.frc-name { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.frc-avg {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.frc-avg-stars { display: flex; gap: 1px; }
+.frc-avg-star { font-size: 14px; color: var(--star-bg); }
+.frc-avg-star.filled { color: var(--star); }
+.frc-avg-star.half {
+  background: linear-gradient(90deg, var(--star) 50%, var(--star-bg) 50%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.frc-avg-val { font-size: 16px; font-weight: 800; color: var(--star); font-family: 'JetBrains Mono', monospace; }
+.frc-count { font-size: 11px; color: var(--muted); }
+
+/* Rating input area */
+.frc-rate-area { margin-bottom: 10px; }
+.frc-rate-label { font-size: 11px; font-weight: 700; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.frc-stars { display: flex; gap: 3px; align-items: center; margin-bottom: 6px; }
+.frc-star {
+  font-size: 22px;
+  color: var(--star-bg);
+  cursor: pointer;
+  transition: color 0.1s, transform 0.1s;
+  user-select: none;
+}
+.frc-star.filled { color: var(--star); }
+.frc-star:hover { transform: scale(1.15); }
+.frc-decimal-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.frc-decimal-label { font-size: 11px; color: var(--muted); }
+.frc-decimal-inp {
+  width: 58px;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px; font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  outline: none;
+}
+.frc-decimal-inp:focus { border-color: var(--star); }
+
+.frc-comment-inp {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  resize: none;
+  min-height: 64px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.frc-comment-inp:focus { border-color: var(--accent2); background: var(--bg2); }
+.frc-comment-inp::placeholder { color: var(--muted); }
+.frc-submit-btn {
+  margin-top: 8px;
+  background: var(--text);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: opacity 0.15s;
+  width: 100%;
+}
+.frc-submit-btn:hover { opacity: 0.85; }
+.frc-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.frc-submitted { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 6px; display: none; }
+.frc-submitted.show { display: block; }
+
+/* Reviews list */
+.frc-reviews-toggle {
+  font-size: 12px; color: var(--accent2); font-weight: 700;
+  cursor: pointer; margin-top: 8px; background: none; border: none;
+  text-align: left; padding: 0;
+}
+.frc-reviews-list { margin-top: 8px; display: none; }
+.frc-reviews-list.open { display: block; }
+.review-entry {
+  border-top: 1px solid var(--border);
+  padding: 8px 0;
+  font-size: 12px;
+}
+.re-header { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.re-name { font-weight: 700; color: var(--text); }
+.re-stars { display: flex; gap: 1px; }
+.re-star { font-size: 11px; color: var(--star-bg); }
+.re-star.filled { color: var(--star); }
+.re-val { font-weight: 700; color: var(--star); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.re-comment { color: var(--muted2); font-style: italic; line-height: 1.4; }
+.re-date { font-size: 10px; color: var(--muted); margin-left: auto; }
+
+/* ───────── RANKING PAGE ───────── */
+.ranking-wrap { flex: 1; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+.ranking-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.rank-filter-btn {
+  background: var(--bg3);
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted2);
+  transition: all 0.15s;
+}
+.rank-filter-btn.active { background: var(--text); color: #fff; }
+.rank-filter-btn:hover { background: var(--bg4); color: var(--text); }
+.ranking-list { display: flex; flex-direction: column; gap: 10px; }
+.rank-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease both;
+}
+.rank-pos {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900;
+  flex-shrink: 0;
+}
+.rank-pos.gold   { background: #fff3cc; color: #c8921a; }
+.rank-pos.silver { background: #f0f0f0; color: #707070; }
+.rank-pos.bronze { background: #fde8d5; color: #9a5020; }
+.rank-pos.other  { background: var(--bg3); color: var(--muted2); font-size: 14px; }
+.rank-info { flex: 1; }
+.rank-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.rank-meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+.rank-meta .rm-tag { color: var(--muted2); }
+.rank-score-wrap { text-align: right; flex-shrink: 0; }
+.rank-score { font-size: 24px; font-weight: 900; color: var(--star); font-family: 'JetBrains Mono', monospace; line-height: 1; }
+.rank-score-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.rank-stars-row { display: flex; gap: 1px; justify-content: flex-end; margin-top: 3px; }
+.rs { font-size: 12px; color: var(--star-bg); }
+.rs.f { color: var(--star); }
+.rs.h {
+  background: linear-gradient(90deg, var(--star) 50%, var(--star-bg) 50%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rank-comments-toggle {
+  font-size: 11px; color: var(--accent2); font-weight: 700;
+  cursor: pointer; background: none; border: none;
+  display: block; margin-top: 4px; text-align: left; padding: 0;
+}
+.rank-comments { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
+.rank-comments.open { display: block; }
+.rc-entry {
+  display: flex; gap: 10px;
+  font-size: 12px; padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rc-entry:last-child { border-bottom: none; }
+.rc-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.rc-name { font-weight: 700; color: var(--text); }
+.rc-val { color: var(--star); font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.rc-comment { color: var(--muted2); font-style: italic; }
+.rc-date { font-size: 10px; color: var(--muted); margin-left: auto; flex-shrink: 0; }
+
+/* ───────── MESS INFO ───────── */
+.mess-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.mess-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.mess-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.mess-pill {
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 16px;
+  background: var(--bg3); text-align: center; min-width: 120px;
+}
+.mess-pill-name {
+  font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 5px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.mdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.mdot-veg  { background: var(--veg); }
+.mdot-egg  { background: var(--nonveg); }
+.mdot-both { background: #7c5cbf; }
+.mess-tags { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.mess-tag {
+  font-size: 9px; letter-spacing: 0.05em; padding: 1px 6px;
+  border-radius: 3px; text-transform: uppercase; font-weight: 700;
+}
+.mt-veg   { background: rgba(46,125,80,0.1);   color: #2e7d50; }
+.mt-egg   { background: rgba(192,57,43,0.1);    color: #c0392b; }
+.mt-fruit { background: rgba(181,135,58,0.1);   color: var(--accent); }
+.mt-no    { background: rgba(100,100,120,0.08); color: var(--muted); }
+
+/* ───────── MISC ───────── */
+.state-box {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 200px; gap: 10px;
+  color: var(--muted); font-size: 13px;
+  grid-column: 1 / -1;
+}
+.spinner {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--muted2);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { padding: 20px 16px; text-align: center; font-size: 12px; color: var(--muted); }
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--text); color: #fff;
+  padding: 12px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  box-shadow: var(--shadow2);
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.no-review-note { font-size: 12px; color: var(--muted); text-align: center; padding: 14px; background: var(--bg3); border-radius: 8px; margin-top: 12px; }
+.login-gate { text-align: center; padding: 20px; background: var(--bg3); border-radius: var(--radius); margin: 12px 0; }
+.login-gate p { font-size: 13px; color: var(--muted2); margin-bottom: 10px; }
+.login-gate a { color: var(--accent2); font-weight: 700; cursor: pointer; }
+
+.section-hero {
+  padding: 28px 24px 20px;
+  background: linear-gradient(135deg, #1a1917, #2e3830);
+  color: #fff;
+}
+.section-hero h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.section-hero p { font-size: 13px; opacity: 0.6; }
+
+/* ───────── MEAL TIMING ───────── */
+.meal-timing {
+  font-size: 11px; color: var(--muted2); background: var(--bg3);
+  padding: 4px 14px; border-bottom: 1px solid var(--border);
+  font-weight: 600; letter-spacing: 0.02em;
+}
+
+/* ───────── TRENDING BADGE ───────── */
+.badge-trending { background: rgba(255,90,30,0.12); color: #d44000; }
+
+/* ───────── HELPFUL VOTES ───────── */
+.helpful-row { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+.helpful-btn {
+  background: none; border: 1px solid var(--border2); border-radius: 5px;
+  font-size: 11px; padding: 2px 8px; cursor: pointer; color: var(--muted2);
+  font-weight: 600; transition: all 0.15s;
+}
+.helpful-btn:hover { background: var(--bg3); color: var(--text); }
+.helpful-btn.voted { background: rgba(124,92,191,0.1); color: var(--accent2); border-color: var(--accent2); }
+.helpful-count { font-size: 11px; color: var(--muted); }
+
+/* ───────── I ATE THIS BUTTON ───────── */
+.ate-this-btn {
+  background: rgba(46,125,80,0.08); border: 1px solid rgba(46,125,80,0.25);
+  color: #2e7d50; border-radius: 6px; font-size: 11px; font-weight: 700;
+  padding: 3px 9px; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.ate-this-btn:hover { background: rgba(46,125,80,0.16); }
+.ate-this-btn.ate { background: rgba(46,125,80,0.18); color: #2e7d50; border-color: #2e7d50; }
+
+/* ───────── OTP VERIFY ───────── */
+.otp-box { display: flex; gap: 8px; justify-content: center; margin: 10px 0; }
+.otp-digit {
+  width: 44px; height: 48px; border: 2px solid var(--border);
+  border-radius: 8px; text-align: center; font-size: 20px; font-weight: 700;
+  background: var(--bg3); outline: none; color: var(--text);
+}
+.otp-digit:focus { border-color: var(--accent2); background: var(--bg2); }
+
+/* ───────── ADMIN PANEL ───────── */
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.admin-table th { background: var(--bg3); text-align: left; padding: 8px 12px; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted2); border-bottom: 1px solid var(--border); }
+.admin-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+.admin-table tr:hover td { background: var(--bg3); }
+.admin-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+.admin-section-head { padding: 14px 16px; background: var(--bg3); border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
+.admin-section-body { padding: 16px; }
+.btn-sm { padding: 5px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.btn-danger { background: rgba(192,57,43,0.1); color: var(--red); }
+.btn-danger:hover { background: rgba(192,57,43,0.2); }
+.btn-success { background: rgba(46,125,80,0.1); color: var(--green); }
+.btn-success:hover { background: rgba(46,125,80,0.2); }
+.btn-export { background: var(--text); color: #fff; padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.btn-export:hover { opacity: 0.85; }
+.mess-compare-bar { height: 18px; border-radius: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent)); margin-bottom: 4px; transition: width 0.5s; }
+.hidden-review { opacity: 0.4; text-decoration: line-through; }
+
+/* ───────── PROFILE PAGE ───────── */
+.profile-wrap { flex: 1; padding: 24px; max-width: 700px; margin: 0 auto; width: 100%; }
+.profile-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+.profile-avatar-big {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 800; color: #fff;
+  margin: 0 auto 12px;
+}
+.profile-name-big { font-size: 20px; font-weight: 800; text-align: center; }
+.profile-email { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 16px; }
+
+/* ───────── MESS COMPARE ───────── */
+.compare-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+.compare-label { width: 110px; font-weight: 700; flex-shrink: 0; }
+.compare-bar-wrap { flex: 1; }
+.compare-score { width: 36px; text-align: right; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--star); }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     LOGIN PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-login">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div>
+        <div class="header-title">NISER Mess</div>
+        <div class="header-sub">NISER · Bhubaneswar</div>
+      </div>
+    </div>
+    <nav class="header-nav" id="hn-login">
+      <button class="nav-btn" onclick="showPage('page-menu')">View Menu</button>
+      <button class="nav-btn" onclick="showPage('page-signup')">Sign Up</button>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-login')">☰</button>
+  </header>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">N</div>
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to your NISER Mess account</div>
+      <div class="form-group">
+        <label class="form-label">Email ID</label>
+        <input class="form-input" type="email" id="li-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="li-password" placeholder="Enter password">
+      </div>
+      <div class="form-error" id="li-error">Invalid email or password.</div>
+      <button class="btn-main" onclick="doLogin()">Sign In</button>
+      <div class="auth-switch" style="margin-top:10px;">
+        <a onclick="showPage('page-forgot')" style="color:var(--muted);font-size:12px;">Forgot password?</a>
+      </div>
+      <div class="auth-switch">
+        Don't have an account? <a onclick="showPage('page-signup')">Sign up here</a>
+      </div>
+      <div class="skip-link">
+        <a onclick="showPage('page-menu')">Continue as guest (menu only) →</a>
+      </div>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · National Institute of Science Education and Research, Bhubaneswar
+    <div class="footer-links">
+      <a href="https://www.niser.ac.in" target="_blank">niser.ac.in ↗</a>
+      <a href="https://shubhranshu-24.github.io/shubhranshu/" target="_blank">Developer ↗</a>
+    </div>
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SIGNUP PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-signup">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div>
+        <div class="header-title">NISER Mess</div>
+        <div class="header-sub">NISER · Bhubaneswar</div>
+      </div>
+    </div>
+    <nav class="header-nav" id="hn-signup">
+      <button class="nav-btn" onclick="showPage('page-menu')">View Menu</button>
+      <button class="nav-btn" onclick="showPage('page-login')">Sign In</button>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-signup')">☰</button>
+  </header>
+  <div class="auth-wrap">
+    <div class="auth-card" style="max-width:480px;">
+      <div class="auth-logo">N</div>
+      <div class="auth-title">Create Account</div>
+      <div class="auth-sub">Register for NISER Mess Portal</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input class="form-input" type="text" id="su-name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile *</label>
+          <input class="form-input" type="tel" id="su-mobile" placeholder="10-digit number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email ID *</label>
+        <input class="form-input" type="email" id="su-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input class="form-input" type="password" id="su-pass" placeholder="Min 6 characters">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Mess Reg. Transaction *</label>
+          <input class="form-input" type="text" id="su-txn" placeholder="Transaction ID">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Ref No. <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+          <input class="form-input" type="text" id="su-ref" placeholder="Reference No.">
+        </div>
+      </div>
+      <div class="form-error" id="su-error"></div>
+      <button class="btn-main" id="su-btn" onclick="doSignupSendOTP()">Send Verification Code</button>
+      <div class="auth-switch">
+        Already have an account? <a onclick="showPage('page-login')">Sign in here</a>
+      </div>
+      <div class="skip-link">
+        <a onclick="showPage('page-menu')">Continue as guest (menu only) →</a>
+      </div>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · National Institute of Science Education and Research, Bhubaneswar
+    <div class="footer-links">
+      <a href="https://www.niser.ac.in" target="_blank">niser.ac.in ↗</a>
+      <a href="https://shubhranshu-24.github.io/shubhranshu/" target="_blank">Developer ↗</a>
+    </div>
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MENU PAGE
+═══════════════════════════════════════ -->
+<div class="page active" id="page-menu">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div>
+        <div class="header-title">NISER Mess</div>
+        <div class="header-sub">NISER · Bhubaneswar</div>
+      </div>
+    </div>
+    <nav class="header-nav" id="hn-menu">
+      <button class="nav-btn active" onclick="showPage('page-menu')">Menu</button>
+      <button class="nav-btn" onclick="goReview()">Reviews</button>
+      <button class="nav-btn" onclick="goRanking()">Rankings</button>
+      <div id="menu-user-area">
+        <button class="nav-btn primary" onclick="showPage('page-login')">Sign In</button>
+      </div>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-menu')">☰</button>
+  </header>
+
+  <div class="menu-hero">
+    <div class="menu-hero-title">🍽 NISER Mess Menu</div>
+    <div class="menu-hero-sub">National Institute of Science Education and Research · Bhubaneswar</div>
+    <div class="menu-hero-update" id="update-time">Loading…</div>
+  </div>
+
+  <nav class="day-nav" id="day-nav"></nav>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--veg)"></div> Vegetarian</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--nonveg)"></div> Non-Veg</div>
+    <div class="leg-item">⭐ = avg rating from users</div>
+    <div class="leg-item"><span style="background:rgba(46,125,80,0.1);color:#2e7d50;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700;">SALAD</span></div>
+    <div class="leg-item"><span style="background:rgba(181,135,58,0.12);color:var(--accent);font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700;">DESSERT</span></div>
+  </div>
+
+  <main class="menu-content">
+    <div class="menu-grid" id="menu-grid">
+      <div class="state-box"><div class="spinner"></div><span>Loading…</span></div>
+    </div>
+  </main>
+
+  <div class="mess-section">
+    <div class="mess-label">Mess Information</div>
+    <div class="mess-pills">
+      <div class="mess-pill">
+        <div class="mess-pill-name"><span class="mdot mdot-veg"></span>Bhagirathi</div>
+        <div class="mess-tags">
+          <span class="mess-tag mt-veg">Pure Veg</span>
+          <span class="mess-tag mt-fruit">Fruits</span>
+          <span class="mess-tag mt-no">No Egg</span>
+        </div>
+      </div>
+      <div class="mess-pill">
+        <div class="mess-pill-name"><span class="mdot mdot-egg"></span>Brahmaputra</div>
+        <div class="mess-tags">
+          <span class="mess-tag mt-egg">Egg</span>
+          <span class="mess-tag mt-no">No Fruits</span>
+        </div>
+      </div>
+      <div class="mess-pill">
+        <div class="mess-pill-name"><span class="mdot mdot-both"></span>Ganga</div>
+        <div class="mess-tags">
+          <span class="mess-tag mt-egg">Egg</span>
+          <span class="mess-tag mt-fruit">Fruits</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · National Institute of Science Education and Research, Bhubaneswar
+    <div class="footer-links">
+      <a href="https://www.niser.ac.in" target="_blank">niser.ac.in ↗</a>
+      <a onclick="goReview()" style="cursor:pointer;">Food Reviews</a>
+      <a onclick="goRanking()" style="cursor:pointer;">Rankings</a>
+      <a href="https://shubhranshu-24.github.io/shubhranshu/" target="_blank">Developer ↗</a>
+    </div>
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;opacity:0.4;">All ratings are user-submitted. NISER is not responsible for review content.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     REVIEW PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-review">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div>
+        <div class="header-title">NISER Mess</div>
+        <div class="header-sub">NISER · Bhubaneswar</div>
+      </div>
+    </div>
+    <nav class="header-nav" id="hn-review">
+      <button class="nav-btn" onclick="showPage('page-menu')">Menu</button>
+      <button class="nav-btn active" onclick="showPage('page-review')">Reviews</button>
+      <button class="nav-btn" onclick="goRanking()">Rankings</button>
+      <div id="review-user-area">
+        <button class="nav-btn primary" onclick="showPage('page-login')">Sign In</button>
+      </div>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-review')">☰</button>
+  </header>
+
+  <div class="section-hero">
+    <h1>⭐ Food Reviews</h1>
+    <p>Rate and review each dish. Your feedback helps everyone.</p>
+  </div>
+
+  <div style="flex:1;padding:20px 24px 32px;max-width:1100px;margin:0 auto;width:100%;">
+    <div class="review-day-sel" id="review-day-nav"></div>
+    <div id="review-content">
+      <div class="state-box"><div class="spinner"></div><span>Loading…</span></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · National Institute of Science Education and Research, Bhubaneswar
+    <div class="footer-links">
+      <a onclick="showPage('page-menu')" style="cursor:pointer;">Menu</a>
+      <a onclick="goRanking()" style="cursor:pointer;">Rankings</a>
+      <a href="https://shubhranshu-24.github.io/shubhranshu/" target="_blank">Developer ↗</a>
+    </div>
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     RANKING PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-ranking">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div>
+        <div class="header-title">NISER Mess</div>
+        <div class="header-sub">NISER · Bhubaneswar</div>
+      </div>
+    </div>
+    <nav class="header-nav" id="hn-ranking">
+      <button class="nav-btn" onclick="showPage('page-menu')">Menu</button>
+      <button class="nav-btn" onclick="goReview()">Reviews</button>
+      <button class="nav-btn active" onclick="goRanking()">Rankings</button>
+      <div id="ranking-user-area">
+        <button class="nav-btn primary" onclick="showPage('page-login')">Sign In</button>
+      </div>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-ranking')">☰</button>
+  </header>
+
+  <div class="section-hero">
+    <h1>🏆 Food Rankings</h1>
+    <p>Top-rated dishes across all meals — voted by students.</p>
+  </div>
+
+  <div class="ranking-wrap">
+    <div class="ranking-filters" id="rank-filters">
+      <button class="rank-filter-btn active" data-filter="all" onclick="setRankFilter(this,'all')">All</button>
+      <button class="rank-filter-btn" data-filter="BREAKFAST" onclick="setRankFilter(this,'BREAKFAST')">Breakfast</button>
+      <button class="rank-filter-btn" data-filter="LUNCH" onclick="setRankFilter(this,'LUNCH')">Lunch</button>
+      <button class="rank-filter-btn" data-filter="DINNER" onclick="setRankFilter(this,'DINNER')">Dinner</button>
+      <div style="width:1px;background:var(--border);margin:0 4px;"></div>
+      <button class="rank-filter-btn active" data-period="all" onclick="setRankPeriod(this,'all')">All Time</button>
+      <button class="rank-filter-btn" data-period="week" onclick="setRankPeriod(this,'week')">This Week</button>
+      <button class="rank-filter-btn" data-period="month" onclick="setRankPeriod(this,'month')">This Month</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:var(--muted2);font-weight:700;align-self:center;">Period:</span>
+      <button class="rank-filter-btn time-filter-btn active" onclick="setTimeFilter(this,'all')">All Time</button>
+      <button class="rank-filter-btn time-filter-btn" onclick="setTimeFilter(this,'week')">This Week</button>
+      <button class="rank-filter-btn time-filter-btn" onclick="setTimeFilter(this,'month')">This Month</button>
+    </div>
+    <div class="ranking-list" id="ranking-list">
+      <div class="state-box"><div class="spinner"></div><span>Loading rankings…</span></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · National Institute of Science Education and Research, Bhubaneswar
+    <div class="footer-links">
+      <a onclick="showPage('page-menu')" style="cursor:pointer;">Menu</a>
+      <a onclick="goReview()" style="cursor:pointer;">Reviews</a>
+      <a href="https://shubhranshu-24.github.io/shubhranshu/" target="_blank">Developer ↗</a>
+    </div>
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     OTP VERIFICATION PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-otp">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div><div class="header-title">NISER Mess</div><div class="header-sub">NISER · Bhubaneswar</div></div>
+    </div>
+  </header>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">📧</div>
+      <div class="auth-title">Verify Email</div>
+      <div class="auth-sub" id="otp-sub">Enter the 6-digit code sent to your email</div>
+      <div class="otp-box">
+        <input class="otp-digit" id="otp0" maxlength="1" oninput="otpMove(0)">
+        <input class="otp-digit" id="otp1" maxlength="1" oninput="otpMove(1)">
+        <input class="otp-digit" id="otp2" maxlength="1" oninput="otpMove(2)">
+        <input class="otp-digit" id="otp3" maxlength="1" oninput="otpMove(3)">
+        <input class="otp-digit" id="otp4" maxlength="1" oninput="otpMove(4)">
+        <input class="otp-digit" id="otp5" maxlength="1" oninput="otpMove(5)">
+      </div>
+      <div class="form-error" id="otp-error"></div>
+      <button class="btn-main" onclick="verifyOTP()">Verify & Create Account</button>
+      <div class="auth-switch"><a onclick="showPage('page-signup')">← Back to Sign Up</a></div>
+      <div class="auth-switch" style="margin-top:6px;font-size:12px;"><a onclick="resendOTP()">Resend Code</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FORGOT PASSWORD PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-forgot">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div><div class="header-title">NISER Mess</div><div class="header-sub">NISER · Bhubaneswar</div></div>
+    </div>
+  </header>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">🔑</div>
+      <div class="auth-title">Reset Password</div>
+      <div class="auth-sub" id="forgot-sub">Enter your registered email to receive a reset code</div>
+      <div id="forgot-step1">
+        <div class="form-group">
+          <label class="form-label">Registered Email</label>
+          <input class="form-input" type="email" id="fp-email" placeholder="your@email.com">
+        </div>
+        <div class="form-error" id="fp-error"></div>
+        <button class="btn-main" onclick="sendForgotOTP()">Send Reset Code</button>
+      </div>
+      <div id="forgot-step2" style="display:none;">
+        <div class="otp-box">
+          <input class="otp-digit" id="fp-otp0" maxlength="1" oninput="fpOtpMove(0)">
+          <input class="otp-digit" id="fp-otp1" maxlength="1" oninput="fpOtpMove(1)">
+          <input class="otp-digit" id="fp-otp2" maxlength="1" oninput="fpOtpMove(2)">
+          <input class="otp-digit" id="fp-otp3" maxlength="1" oninput="fpOtpMove(3)">
+          <input class="otp-digit" id="fp-otp4" maxlength="1" oninput="fpOtpMove(4)">
+          <input class="otp-digit" id="fp-otp5" maxlength="1" oninput="fpOtpMove(5)">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label">New Password</label>
+          <input class="form-input" type="password" id="fp-newpass" placeholder="Min 6 characters">
+        </div>
+        <div class="form-error" id="fp-error2"></div>
+        <button class="btn-main" onclick="doResetPassword()">Reset Password</button>
+      </div>
+      <div class="auth-switch"><a onclick="showPage('page-login')">← Back to Sign In</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PROFILE PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-profile">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div><div class="header-title">NISER Mess</div><div class="header-sub">NISER · Bhubaneswar</div></div>
+    </div>
+    <nav class="header-nav" id="hn-profile">
+      <button class="nav-btn" onclick="showPage('page-menu')">Menu</button>
+      <button class="nav-btn" onclick="goReview()">Reviews</button>
+      <button class="nav-btn" onclick="goRanking()">Rankings</button>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-profile')">☰</button>
+  </header>
+  <div class="profile-wrap">
+    <div class="profile-card" style="text-align:center;">
+      <div class="profile-avatar-big" id="prof-avatar">?</div>
+      <div class="profile-name-big" id="prof-name">—</div>
+      <div class="profile-email" id="prof-email">—</div>
+      <button class="btn-sm btn-danger" onclick="doLogout()" style="margin-top:8px;">Sign Out</button>
+    </div>
+    <div class="profile-card">
+      <div style="font-size:14px;font-weight:800;margin-bottom:12px;">Edit Profile</div>
+      <div class="form-group">
+        <label class="form-label">Display Name</label>
+        <input class="form-input" id="prof-name-inp" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mobile</label>
+        <input class="form-input" id="prof-mobile-inp" placeholder="10-digit number">
+      </div>
+      <button class="btn-main" onclick="saveProfile()">Save Changes</button>
+    </div>
+    <div class="profile-card">
+      <div style="font-size:14px;font-weight:800;margin-bottom:12px;">My Review History</div>
+      <div id="my-reviews-list"></div>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · National Institute of Science Education and Research, Bhubaneswar
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ADMIN PAGE
+═══════════════════════════════════════ -->
+<div class="page" id="page-admin">
+  <header class="site-header">
+    <div class="header-brand" onclick="showPage('page-menu')">
+      <div class="header-logo">N</div>
+      <div><div class="header-title">NISER Mess</div><div class="header-sub">Admin Panel</div></div>
+    </div>
+    <nav class="header-nav" id="hn-admin">
+      <button class="nav-btn" onclick="showPage('page-menu')">← Back</button>
+      <button class="btn-export" onclick="exportCSV()">⬇ Export Ratings CSV</button>
+    </nav>
+    <button class="hamburger" onclick="toggleHamburger('hn-admin')">☰</button>
+  </header>
+  <div style="flex:1;padding:24px;max-width:1000px;margin:0 auto;width:100%;">
+    <div class="section-hero" style="border-radius:12px;margin-bottom:20px;">
+      <h1>🛠 Admin Panel</h1>
+      <p>Manage users, reviews, and view mess comparisons.</p>
+    </div>
+
+    <!-- Mess Comparison -->
+    <div class="admin-section">
+      <div class="admin-section-head">📊 Mess-wise Rating Comparison</div>
+      <div class="admin-section-body" id="mess-compare-body">Loading…</div>
+    </div>
+
+    <!-- Most Reviewed -->
+    <div class="admin-section">
+      <div class="admin-section-head">🔥 Most Reviewed Food Item</div>
+      <div class="admin-section-body" id="most-reviewed-body">Loading…</div>
+    </div>
+
+    <!-- Review Moderation -->
+    <div class="admin-section">
+      <div class="admin-section-head">
+        💬 Review Moderation
+        <span style="font-size:12px;color:var(--muted);font-weight:400;">Hide/show user comments</span>
+      </div>
+      <div class="admin-section-body" id="mod-reviews-body">Loading…</div>
+    </div>
+
+    <!-- User Management -->
+    <div class="admin-section">
+      <div class="admin-section-head">👥 Registered Users</div>
+      <div class="admin-section-body" style="overflow-x:auto;">
+        <table class="admin-table" id="users-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Mobile</th><th>Joined</th><th>Action</th></tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <strong>NISER Mess Portal</strong> · Admin Panel
+    <div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCRIPT
+═══════════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════
+// CONFIG — Fill these in
+// ════════════════════════════════════════
+const EMAILJS_PUBLIC_KEY  = 'ZO3uwzocbG9SL-8AL';   // from emailjs.com Account tab
+const EMAILJS_SERVICE_ID  = 'service_youkbp6';            // from Email Services
+const EMAILJS_TEMPLATE_ID = 'template_nyg5mv8';           // from Email Templates
+const ADMIN_PASS          = 'SHUBU-24';            // change this!
+
+// ────────────────────────────────────────
+// STORAGE HELPERS (localStorage-based DB)
+// ────────────────────────────────────────
+const DB = {
+  get(key) {
+    try { return JSON.parse(localStorage.getItem('niser_' + key)) || null; }
+    catch { return null; }
+  },
+  set(key, val) {
+    try { localStorage.setItem('niser_' + key, JSON.stringify(val)); } catch {}
+  },
+  getUsers()    { return DB.get('users')    || {}; },
+  getReviews()  { return DB.get('reviews')  || {}; },
+  setUsers(u)   { DB.set('users', u); },
+  setReviews(r) { DB.set('reviews', r); },
+  getHidden()   { return DB.get('hidden_reviews') || {}; },
+  setHidden(h)  { DB.set('hidden_reviews', h); },
+  getHelpful()  { return DB.get('helpful') || {}; },
+  setHelpful(h) { DB.set('helpful', h); },
+  getAteThis()  { return DB.get('ate_this') || {}; },
+  setAteThis(a) { DB.set('ate_this', a); }
+};
+
+// ────────────────────────────────────────
+// AUTH STATE
+// ────────────────────────────────────────
+let currentUser = DB.get('session') || null;
+
+function updateUserAreas() {
+  const areas = ['menu-user-area','review-user-area','ranking-user-area'];
+  areas.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (currentUser) {
+      const initials = currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const isAdmin = currentUser.email === 'admin@niser.ac.in' || currentUser.isAdmin;
+      el.innerHTML = `<div class="user-chip" style="cursor:pointer;" onclick="goProfile()">
+        <div class="user-avatar">${initials}</div>
+        <span>${currentUser.name.split(' ')[0]}</span>
+        ${isAdmin ? '<span style="font-size:9px;background:#7c5cbf;color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;">ADMIN</span>' : ''}
+        <button class="nav-btn" style="padding:4px 8px;font-size:11px;" onclick="event.stopPropagation();doLogout()">Out</button>
+      </div>`;
+    } else {
+      el.innerHTML = `<button class="nav-btn primary" onclick="showPage('page-login')">Sign In</button>`;
+    }
+  });
+}
+
+function doLogin() {
+  const email = document.getElementById('li-email').value.trim().toLowerCase();
+  const pass   = document.getElementById('li-password').value;
+  const errEl  = document.getElementById('li-error');
+  errEl.classList.remove('show');
+
+  // Admin login
+  if (email === 'admin@niser.ac.in' && pass === ADMIN_PASS) {
+    currentUser = { email, name: 'Admin', isAdmin: true };
+    DB.set('session', currentUser);
+    updateUserAreas();
+    showPage('page-admin');
+    buildAdminPage();
+    showToast('Welcome, Admin! 🛠');
+    return;
+  }
+
+  const users = DB.getUsers();
+  if (!users[email] || users[email].password !== pass) {
+    errEl.classList.add('show'); return;
+  }
+  currentUser = { email, name: users[email].name };
+  DB.set('session', currentUser);
+  updateUserAreas();
+  showPage('page-menu');
+  showToast('Welcome back, ' + users[email].name.split(' ')[0] + '! 👋');
+}
+
+// Temp storage for signup pending OTP
+let pendingSignup = null;
+let pendingOTP    = null;
+let forgotOTP     = null;
+let forgotEmail   = null;
+
+// ── EmailJS send helper ──
+function sendEmailOTP(toEmail, toName, otp) {
+  if (typeof emailjs === 'undefined') {
+    console.warn('EmailJS not loaded — OTP:', otp);
+    showToast('📧 (Dev mode) OTP: ' + otp);
+    return Promise.resolve();
+  }
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: toEmail,
+    to_name:  toName,
+    otp_code: otp
+  });
+}
+
+function generateOTP() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+// ── Signup → Send OTP ──
+function doSignupSendOTP() {
+  const name   = document.getElementById('su-name').value.trim();
+  const mobile = document.getElementById('su-mobile').value.trim();
+  const email  = document.getElementById('su-email').value.trim().toLowerCase();
+  const pass   = document.getElementById('su-pass').value;
+  const txn    = document.getElementById('su-txn').value.trim();
+  const ref    = document.getElementById('su-ref').value.trim();
+  const errEl  = document.getElementById('su-error');
+  errEl.classList.remove('show');
+
+  if (!name || !mobile || !email || !pass || !txn) {
+    errEl.textContent = 'Please fill in all required fields.';
+    errEl.classList.add('show'); return;
+  }
+  if (!/^\d{10}$/.test(mobile)) {
+    errEl.textContent = 'Enter a valid 10-digit mobile number.';
+    errEl.classList.add('show'); return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Enter a valid email address.';
+    errEl.classList.add('show'); return;
+  }
+  if (pass.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.classList.add('show'); return;
+  }
+  const users = DB.getUsers();
+  if (users[email]) {
+    errEl.textContent = 'This email is already registered.';
+    errEl.classList.add('show'); return;
+  }
+
+  pendingOTP    = generateOTP();
+  pendingSignup = { name, mobile, email, password: pass, txn, ref, joinedAt: new Date().toISOString() };
+
+  const btn = document.getElementById('su-btn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  sendEmailOTP(email, name, pendingOTP)
+    .then(() => {
+      btn.disabled = false; btn.textContent = 'Send Verification Code';
+      document.getElementById('otp-sub').textContent = `6-digit code sent to ${email}`;
+      showPage('page-otp');
+    })
+    .catch(() => {
+      btn.disabled = false; btn.textContent = 'Send Verification Code';
+      // fallback: allow without email if EmailJS not configured
+      errEl.textContent = 'EmailJS not configured — creating account directly.';
+      errEl.classList.add('show');
+      completeSignup();
+    });
+}
+
+function otpMove(idx) {
+  const val = document.getElementById('otp' + idx).value;
+  if (val && idx < 5) document.getElementById('otp' + (idx+1)).focus();
+}
+
+function getOTPValue(prefix) {
+  return [0,1,2,3,4,5].map(i => (document.getElementById(prefix+i)||{}).value||'').join('');
+}
+
+function verifyOTP() {
+  const entered = getOTPValue('otp');
+  const errEl = document.getElementById('otp-error');
+  errEl.classList.remove('show');
+  if (entered.length < 6) { errEl.textContent='Enter the full 6-digit code.'; errEl.classList.add('show'); return; }
+  if (entered !== pendingOTP) { errEl.textContent='Incorrect code. Try again.'; errEl.classList.add('show'); return; }
+  completeSignup();
+}
+
+function completeSignup() {
+  if (!pendingSignup) return;
+  const users = DB.getUsers();
+  users[pendingSignup.email] = pendingSignup;
+  DB.setUsers(users);
+  currentUser = { email: pendingSignup.email, name: pendingSignup.name };
+  DB.set('session', currentUser);
+  updateUserAreas();
+  pendingSignup = null; pendingOTP = null;
+  showPage('page-menu');
+  showToast('Account created! Welcome, ' + currentUser.name.split(' ')[0] + '! 🎉');
+}
+
+function resendOTP() {
+  if (!pendingSignup) { showPage('page-signup'); return; }
+  pendingOTP = generateOTP();
+  sendEmailOTP(pendingSignup.email, pendingSignup.name, pendingOTP)
+    .then(() => showToast('New code sent! Check your email.'))
+    .catch(() => showToast('📧 (Dev) OTP: ' + pendingOTP));
+}
+
+// ── Forgot Password ──
+function sendForgotOTP() {
+  const email = document.getElementById('fp-email').value.trim().toLowerCase();
+  const errEl = document.getElementById('fp-error');
+  errEl.classList.remove('show');
+  const users = DB.getUsers();
+  if (!users[email]) {
+    errEl.textContent = 'No account found with this email.';
+    errEl.classList.add('show'); return;
+  }
+  forgotOTP   = generateOTP();
+  forgotEmail = email;
+  sendEmailOTP(email, users[email].name, forgotOTP)
+    .then(() => {
+      document.getElementById('forgot-step1').style.display = 'none';
+      document.getElementById('forgot-step2').style.display = 'block';
+      document.getElementById('forgot-sub').textContent = `Reset code sent to ${email}`;
+    })
+    .catch(() => {
+      // fallback dev mode
+      document.getElementById('forgot-step1').style.display = 'none';
+      document.getElementById('forgot-step2').style.display = 'block';
+      showToast('📧 (Dev) OTP: ' + forgotOTP);
+    });
+}
+
+function fpOtpMove(idx) {
+  const val = document.getElementById('fp-otp'+idx).value;
+  if (val && idx < 5) document.getElementById('fp-otp'+(idx+1)).focus();
+}
+
+function doResetPassword() {
+  const entered = getOTPValue('fp-otp');
+  const newPass = document.getElementById('fp-newpass').value;
+  const errEl   = document.getElementById('fp-error2');
+  errEl.classList.remove('show');
+  if (entered !== forgotOTP) { errEl.textContent='Incorrect code.'; errEl.classList.add('show'); return; }
+  if (newPass.length < 6) { errEl.textContent='Password must be 6+ chars.'; errEl.classList.add('show'); return; }
+  const users = DB.getUsers();
+  users[forgotEmail].password = newPass;
+  DB.setUsers(users);
+  forgotOTP = null; forgotEmail = null;
+  showPage('page-login');
+  showToast('Password reset! You can now sign in. ✅');
+}
+
+function doSignup() { doSignupSendOTP(); }
+
+function doLogout() {
+  currentUser = null;
+  DB.set('session', null);
+  updateUserAreas();
+  showPage('page-menu');
+  showToast('Logged out successfully.');
+}
+
+// ────────────────────────────────────────
+// PAGE NAVIGATION
+// ────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'page-review')   buildReviewPage();
+  if (id === 'page-ranking')  buildRankingPage();
+  if (id === 'page-profile')  buildProfilePage();
+  if (id === 'page-admin')    buildAdminPage();
+}
+
+function goReview()  { showPage('page-review'); }
+function goRanking() { showPage('page-ranking'); }
+
+function toggleHamburger(navId) {
+  document.getElementById(navId).classList.toggle('open');
+}
+
+// ────────────────────────────────────────
+// TOAST
+// ────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ────────────────────────────────────────
+// CLASSIFY / KEYWORDS
+// ────────────────────────────────────────
+const KW = {
+  chicken: ['chicken','murgh','butter chicken'],
+  fish:    ['fish','prawn','shrimp','crab','pomfret','rohu','katla','machhi','machha'],
+  egg:     ['egg','anda','omelette','omelet','bhurji','egg curry','egg masala','half fry','fruit / egg'],
+  fruit:   ['banana','apple','orange','mango','grapes','watermelon','papaya','pear','guava','pineapple','pomegranate','kiwi','strawberry','chiku','lychee','jamun','amla','coconut','fruit'],
+  salad:   ['salad','raita','kachumber','boondi raita','mix raita'],
+  dessert: ['halwa','kheer','pudding','ice cream','gulab jamun','rasgulla','payasam','phirni','barfi','ladoo','jalebi','rabdi','seviyan','cake','custard','launglata','malpua','sewai','bhalu shahi','fruit cream','moong dal halwa']
+};
+function hits(s,l){ const x=s.toLowerCase(); return l.some(k=>x.includes(k)); }
+function classify(n){
+  if(hits(n,KW.chicken)) return {type:'nonveg',size:'chicken',emoji:'🐔'};
+  if(hits(n,KW.fish))    return {type:'nonveg',size:'fish',   emoji:'🐟'};
+  if(hits(n,KW.egg))     return {type:'nonveg',size:'egg',    emoji:'🥚'};
+  return {type:'veg',size:'normal',emoji:''};
+}
+function getBadges(n){
+  const b=[];
+  if(hits(n,KW.fruit))   b.push({cls:'badge-fruit',   txt:'Fruit'});
+  if(hits(n,KW.salad))   b.push({cls:'badge-salad',   txt:'Salad'});
+  if(hits(n,KW.dessert)) b.push({cls:'badge-dessert', txt:'Dessert'});
+  return b;
+}
+
+// ────────────────────────────────────────
+// RATINGS CORE
+// ────────────────────────────────────────
+function foodKey(n){ return n.trim().toUpperCase().replace(/\s+/g,'_'); }
+
+function getAvgRating(itemName){
+  const reviews=DB.getReviews(), key=foodKey(itemName);
+  if(!reviews[key]||!reviews[key].ratings||!reviews[key].ratings.length) return {avg:0,count:0};
+  const ratings=reviews[key].ratings;
+  const avg=ratings.reduce((s,r)=>s+r.value,0)/ratings.length;
+  return {avg:Math.round(avg*10)/10, count:ratings.length};
+}
+
+function getUserRating(itemName){
+  if(!currentUser) return null;
+  const reviews=DB.getReviews(), key=foodKey(itemName);
+  if(!reviews[key]||!reviews[key].ratings) return null;
+  return reviews[key].ratings.find(r=>r.email===currentUser.email)||null;
+}
+
+function saveRating(itemName, meal, value, comment){
+  if(!currentUser) return false;
+  const reviews=DB.getReviews(), key=foodKey(itemName);
+  if(!reviews[key]) reviews[key]={itemName,meal,ratings:[],comments:[]};
+  reviews[key].ratings=reviews[key].ratings.filter(r=>r.email!==currentUser.email);
+  reviews[key].ratings.push({
+    email:currentUser.email, name:currentUser.name, value,
+    ts:Date.now(),
+    date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})
+  });
+  if(comment&&comment.trim()){
+    reviews[key].comments=(reviews[key].comments||[]).filter(c=>c.email!==currentUser.email);
+    reviews[key].comments.push({
+      email:currentUser.email, name:currentUser.name, value,
+      comment:comment.trim(), ts:Date.now(),
+      date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})
+    });
+  }
+  DB.setReviews(reviews);
+  return true;
+}
+
+// ────────────────────────────────────────
+// STARS HTML
+// ────────────────────────────────────────
+function starsHTML(val,size=12){
+  let h='';
+  for(let i=1;i<=5;i++){
+    if(val>=i) h+=`<span style="font-size:${size}px;color:var(--star)">★</span>`;
+    else if(val>=i-0.5) h+=`<span style="font-size:${size}px;background:linear-gradient(90deg,var(--star) 50%,var(--star-bg) 50%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">★</span>`;
+    else h+=`<span style="font-size:${size}px;color:var(--star-bg)">★</span>`;
+  }
+  return h;
+}
+
+// ────────────────────────────────────────
+// CSV PARSE
+// ────────────────────────────────────────
+function parseCSV(text){
+  function splitRow(line){
+    const cols=[]; let cur=''; let q=false;
+    for(const ch of line){
+      if(ch==='"'){q=!q;}
+      else if(ch===','&&!q){cols.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    cols.push(cur.trim()); return cols;
+  }
+  const rows=text.split('\n').map(splitRow);
+  const updateTime=rows[0]?.[0]||'';
+  const headerRow=rows[2]||[];
+  const dayNames=[];
+  for(let c=1;c<=7;c++) dayNames.push(headerRow[c]||`Day ${c}`);
+  const days=Array.from({length:7},()=>({BREAKFAST:[],LUNCH:[],DINNER:[]}));
+  let section=null;
+  for(let r=3;r<rows.length;r++){
+    const row=rows[r];
+    const colA=(row[0]||'').trim().toUpperCase();
+    if(['BREAKFAST','LUNCH','DINNER'].includes(colA)){section=colA;continue;}
+    if(colA==='SWEET'||colA==='NONVEG'){section=colA;continue;}
+    if(!section) continue;
+    const target=(section==='SWEET'||section==='NONVEG')?'DINNER':section;
+    for(let c=0;c<7;c++){
+      const val=(row[c+1]||'').trim();
+      if(val) days[c][target].push(val);
+    }
+  }
+  return {updateTime,dayNames,days};
+}
+
+
+
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZ3e1ImbssqqrpQRO8KuEKvL8Zq69xZVApqriqcvRlisgOFHDzSvXbtyEYLI0UhQBLpLcuoFxtQJ8N/pub?gid=127683587&single=true&output=csv';   // ← Paste your Google Sheets CSV URL here
+let appData = null;
+let activeDay = 0;
+let reviewActiveDay = 0;
+let currentRankFilter = 'all';
+let currentTimeFilter = 'all'; // 'all' | 'week' | 'month'
+
+// ────────────────────────────────────────
+// TRENDING
+// ────────────────────────────────────────
+function isTrending(itemName) {
+  const reviews = DB.getReviews();
+  const key = foodKey(itemName);
+  if (!reviews[key]?.ratings) return false;
+  const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return reviews[key].ratings.filter(r => r.ts && r.ts > cutoff).length >= 3;
+}
+
+// ────────────────────────────────────────
+// "I ATE THIS"
+// ────────────────────────────────────────
+function toggleAteThis(itemName) {
+  if (!currentUser) { showToast('Sign in to log your meal'); return; }
+  const ate = DB.getAteThis();
+  const key = currentUser.email + '::' + foodKey(itemName);
+  const today = new Date().toLocaleDateString('en-IN');
+  if (ate[key] === today) { delete ate[key]; showToast('Removed from today\'s log'); }
+  else { ate[key] = today; showToast('🍽 Logged: ' + itemName); }
+  DB.setAteThis(ate);
+  document.querySelectorAll('.ate-this-btn[data-item="' + foodKey(itemName) + '"]').forEach(btn => {
+    const isAte = ate[key] === today;
+    btn.classList.toggle('ate', isAte);
+    btn.textContent = isAte ? '✓ Ate' : '🍽';
+  });
+}
+
+function didAteThis(itemName) {
+  if (!currentUser) return false;
+  const ate = DB.getAteThis();
+  const key = currentUser.email + '::' + foodKey(itemName);
+  return ate[key] === new Date().toLocaleDateString('en-IN');
+}
+
+// ────────────────────────────────────────
+// HELPFUL VOTES
+// ────────────────────────────────────────
+function toggleHelpful(reviewId) {
+  if (!currentUser) { showToast('Sign in to vote'); return; }
+  const helpful = DB.getHelpful();
+  const myKey = currentUser.email + '::' + reviewId;
+  if (helpful[myKey]) delete helpful[myKey];
+  else helpful[myKey] = true;
+  DB.setHelpful(helpful);
+  const cnt = getHelpfulCount(reviewId);
+  const btn = document.getElementById('hbtn-' + reviewId);
+  const cntEl = document.getElementById('hcnt-' + reviewId);
+  if (btn) btn.classList.toggle('voted', !!helpful[myKey]);
+  if (cntEl) cntEl.textContent = cnt > 0 ? cnt + ' found helpful' : '';
+}
+
+function getHelpfulCount(reviewId) {
+  const helpful = DB.getHelpful();
+  return Object.keys(helpful).filter(k => k.endsWith('::' + reviewId)).length;
+}
+
+// ────────────────────────────────────────
+// MENU BUILD
+// ────────────────────────────────────────
+function buildItem(name) {
+  const c = classify(name);
+  const bb = getBadges(name);
+  const { avg, count } = getAvgRating(name);
+  const trending = isTrending(name);
+  const ateThis = didAteThis(name);
+  const displayName = c.emoji ? c.emoji + ' ' + name : name;
+  const key = foodKey(name);
+
+  const trendBadge = trending ? '<span class="badge badge-trending">🔥</span>' : '';
+  const badgesHTML = bb.length
+    ? '<div class="badges">' + bb.map(b => '<span class="badge ' + b.cls + '">' + b.txt + '</span>').join('') + '</div>'
+    : '';
+  const ratingHTML = avg > 0
+    ? '<div class="item-rating-inline" title="' + avg + '/5 from ' + count + ' ratings"><span class="star-icon">★</span><span class="star-val">' + avg + '</span><span class="count">(' + count + ')</span></div>'
+    : '';
+  const ateBtn = currentUser
+    ? '<button class="ate-this-btn' + (ateThis ? ' ate' : '') + '" data-item="' + key + '" onclick="event.stopPropagation();toggleAteThis(\'' + name.replace(/'/g, "\\'") + '\')">' + (ateThis ? '✓ Ate' : '🍽') + '</button>'
+    : '';
+
+  const row = document.createElement('div');
+  row.className = 'item-row ' + c.type + ' size-' + c.size;
+  row.innerHTML = '<div class="item-inner"><div class="item-name-row"><span class="item-name">' + displayName + '</span>' + trendBadge + ratingHTML + ateBtn + '</div>' + badgesHTML + '</div>';
+  return row;
+}
+
+function buildCol(meal, items) {
+  const labels  = { BREAKFAST: 'Breakfast', LUNCH: 'Lunch', DINNER: 'Dinner' };
+  const timings = { BREAKFAST: '8:00 – 10:00 AM', LUNCH: '12:30 – 2:30 PM', DINNER: '8:00 – 10:00 PM' };
+  const valid = items.filter(i => i && i.trim());
+  const col = document.createElement('div');
+  col.className = 'meal-card';
+  col.innerHTML = '<div class="meal-header"><span class="meal-title">' + labels[meal] + '</span><span class="meal-count">' + valid.length + ' items</span></div><div class="meal-timing">🕐 ' + timings[meal] + '</div><div class="items-list" id="il-' + meal + '"></div>';
+  const list = col.querySelector('.items-list');
+  if (!valid.length) list.innerHTML = '<div class="empty-state">No items listed</div>';
+  else valid.forEach(item => list.appendChild(buildItem(item)));
+  return col;
+}
+
+function renderMenuDay(dayData) {
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = '';
+  ['BREAKFAST', 'LUNCH', 'DINNER'].forEach(m => grid.appendChild(buildCol(m, dayData[m] || [])));
+}
+
+function shortLabel(raw) {
+  const m = raw.match(/(\d+)\.\w+\.\d+\s*\((\w+)\)/);
+  return m ? m[2].slice(0, 3) + ' ' + m[1] : raw.slice(0, 10);
+}
+
+function todayIdx(dayNames) {
+  const dd = new Date().getDate();
+  for (let i = 0; i < dayNames.length; i++) {
+    const m = dayNames[i].match(/^(\d+)\./);
+    if (m && parseInt(m[1]) === dd) return i;
+  }
+  const d = new Date().getDay();
+  return d === 0 ? 6 : d - 1;
+}
+
+function setMenuDay(idx) {
+  activeDay = idx;
+  document.querySelectorAll('#day-nav .day-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  if (appData) renderMenuDay(appData.days[idx]);
+}
+
+function buildMenuNav(dayNames) {
+  const nav = document.getElementById('day-nav');
+  nav.innerHTML = '';
+  dayNames.forEach((n, i) => {
+    const b = document.createElement('button');
+    b.className = 'day-btn';
+    b.textContent = shortLabel(n);
+    b.onclick = () => setMenuDay(i);
+    nav.appendChild(b);
+  });
+}
+
+// ────────────────────────────────────────
+// REVIEW PAGE
+// ────────────────────────────────────────
+function buildReviewDayNav(dayNames) {
+  const nav = document.getElementById('review-day-nav');
+  nav.innerHTML = '';
+  dayNames.forEach((n, i) => {
+    const b = document.createElement('button');
+    b.className = 'review-day-btn' + (i === reviewActiveDay ? ' active' : '');
+    b.textContent = shortLabel(n);
+    b.onclick = () => { reviewActiveDay = i; buildReviewDay(); buildReviewDayNav(dayNames); };
+    nav.appendChild(b);
+  });
+}
+
+function buildReviewPage() {
+  if (!appData) return;
+  buildReviewDayNav(appData.dayNames);
+  buildReviewDay();
+}
+
+function buildReviewDay() {
+  const content = document.getElementById('review-content');
+  content.innerHTML = '';
+  const day = appData.days[reviewActiveDay];
+  ['BREAKFAST', 'LUNCH', 'DINNER'].forEach(meal => {
+    const items = (day[meal] || []).filter(i => i && i.trim());
+    if (!items.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'meal-review-section';
+    const mealLabel = meal.charAt(0) + meal.slice(1).toLowerCase();
+    const timings = { BREAKFAST: '8:00–10:00 AM', LUNCH: '12:30–2:30 PM', DINNER: '8:00–10:00 PM' };
+    sec.innerHTML = '<div class="meal-review-title">' + mealLabel + ' <span style="font-size:11px;color:var(--muted);font-weight:400;">🕐 ' + timings[meal] + '</span></div>';
+    const grid = document.createElement('div');
+    grid.className = 'food-review-grid';
+    items.forEach(item => grid.appendChild(buildFoodReviewCard(item, meal)));
+    sec.appendChild(grid);
+    content.appendChild(sec);
+  });
+}
+
+function buildFoodReviewCard(itemName, meal) {
+  const card = document.createElement('div');
+  card.className = 'food-review-card';
+  const key = foodKey(itemName);
+  const { avg, count } = getAvgRating(itemName);
+  const userRating = getUserRating(itemName);
+  const reviews = DB.getReviews();
+  const hidden = DB.getHidden();
+  const allComments = (reviews[key]?.comments || []).filter(c => !hidden[key + '::' + c.email]);
+  const trending = isTrending(itemName);
+  const ateThis = didAteThis(itemName);
+
+  const trendBadge = trending ? ' <span class="badge badge-trending">🔥 Trending</span>' : '';
+  const avgStarsHTML = starsHTML(avg, 14);
+
+  let rateHTML = '';
+  if (currentUser) {
+    const existingVal = userRating ? userRating.value : 0;
+    const existingCmt = (reviews[key]?.comments?.find(c => c.email === currentUser.email) || {}).comment || '';
+    const ateBtnHTML = '<button class="ate-this-btn' + (ateThis ? ' ate' : '') + '" data-item="' + key + '" onclick="toggleAteThis(\'' + itemName.replace(/'/g, "\\'") + '\')">' + (ateThis ? '✓ I Ate This' : '🍽 I Ate This') + '</button>';
+    const stars = [1, 2, 3, 4, 5].map(i =>
+      '<span class="frc-star' + (existingVal >= i ? ' filled' : '') + '" onclick="starClick(\'' + key + '\',' + i + ')" onmouseover="starHover(\'' + key + '\',' + i + ')" onmouseout="starOut(\'' + key + '\')">★</span>'
+    ).join('');
+    rateHTML = '<div class="frc-rate-area"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><div class="frc-rate-label">Your Rating</div>' + ateBtnHTML + '</div><div class="frc-stars" id="frc-stars-' + key + '">' + stars + '</div><div class="frc-decimal-row"><span class="frc-decimal-label">Fine-tune:</span><input class="frc-decimal-inp" type="number" min="0" max="5" step="0.1" id="frc-dec-' + key + '" value="' + (existingVal || '') + '" oninput="decimalUpdate(\'' + key + '\',this.value)" placeholder="4.2"></div><textarea class="frc-comment-inp" id="frc-cmt-' + key + '" placeholder="Write a comment (optional)…" rows="2">' + existingCmt + '</textarea><button class="frc-submit-btn" onclick="submitRating(\'' + key + '\',\'' + itemName.replace(/'/g, "\\'") + '\',\'' + meal + '\')">' + (userRating ? '✓ Update Rating' : '⭐ Submit Rating') + '</button><div class="frc-submitted' + (userRating ? ' show' : '') + '" id="frc-done-' + key + '">' + (userRating ? '✓ Rating saved!' : '') + '</div></div>';
+  } else {
+    rateHTML = '<div class="login-gate"><p>Sign in to rate this dish</p><a onclick="showPage(\'page-login\')">Sign In</a> · <a onclick="showPage(\'page-signup\')">Sign Up</a></div>';
+  }
+
+  let commentsHTML = '';
+  if (allComments.length) {
+    const cmtItems = allComments.map(c => {
+      const rid = key + '::' + c.email;
+      const helpful = DB.getHelpful();
+      const myVoted = currentUser && !!helpful[currentUser.email + '::' + rid];
+      const hCount = getHelpfulCount(rid);
+      return '<div class="review-entry"><div class="re-header"><span class="re-name">' + c.name.split(' ')[0] + '</span>' + starsHTML(c.value, 11) + '<span class="re-val">' + c.value.toFixed(1) + '</span><span class="re-date">' + c.date + '</span></div><div class="re-comment">"' + c.comment + '"</div><div class="helpful-row"><button class="helpful-btn' + (myVoted ? ' voted' : '') + '" id="hbtn-' + rid + '" onclick="toggleHelpful(\'' + rid + '\')">👍 Helpful</button><span class="helpful-count" id="hcnt-' + rid + '">' + (hCount > 0 ? hCount + ' found helpful' : '') + '</span></div></div>';
+    }).join('');
+    commentsHTML = '<button class="frc-reviews-toggle" onclick="toggleReviews(\'' + key + '\')">💬 ' + allComments.length + ' comment' + (allComments.length !== 1 ? 's' : '') + '</button><div class="frc-reviews-list" id="rcl-' + key + '">' + cmtItems + '</div>';
+  }
+
+  card.innerHTML = '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;flex-wrap:wrap;"><span class="frc-name">' + itemName + '</span>' + trendBadge + '</div><div class="frc-avg">' + avgStarsHTML + '<span class="frc-avg-val" style="margin-left:6px;">' + (avg > 0 ? avg.toFixed(1) : '—') + '</span><span class="frc-count">(' + count + ' rating' + (count !== 1 ? 's' : '') + ')</span></div>' + rateHTML + commentsHTML;
+  card.dataset.key = key;
+  card.dataset.val = userRating ? String(userRating.value) : '0';
+  return card;
+}
+
+function starClick(key, i) {
+  const inp = document.getElementById('frc-dec-' + key);
+  if (inp) inp.value = i;
+  updateStarDisplay(key, i);
+  const card = document.querySelector('[data-key="' + key + '"]');
+  if (card) card.dataset.val = String(i);
+}
+
+function starHover(key, i) {
+  document.querySelectorAll('#frc-stars-' + key + ' .frc-star').forEach((s, idx) => s.classList.toggle('filled', idx < i));
+}
+
+function starOut(key) {
+  const card = document.querySelector('[data-key="' + key + '"]');
+  updateStarDisplay(key, card ? parseFloat(card.dataset.val) : 0);
+}
+
+function updateStarDisplay(key, val) {
+  document.querySelectorAll('#frc-stars-' + key + ' .frc-star').forEach((s, idx) => s.classList.toggle('filled', idx + 1 <= val));
+}
+
+function decimalUpdate(key, val) {
+  const v = Math.min(5, Math.max(0, parseFloat(val) || 0));
+  updateStarDisplay(key, v);
+  const card = document.querySelector('[data-key="' + key + '"]');
+  if (card) card.dataset.val = String(v);
+}
+
+function submitRating(key, itemName, meal) {
+  const inp = document.getElementById('frc-dec-' + key);
+  const cmt = document.getElementById('frc-cmt-' + key);
+  const done = document.getElementById('frc-done-' + key);
+  const card = document.querySelector('[data-key="' + key + '"]');
+  const val = parseFloat(inp?.value) || parseFloat(card?.dataset.val) || 0;
+  if (!val) { showToast('Please select a star rating first.'); return; }
+  saveRating(itemName, meal, val, cmt?.value || '');
+  if (done) { done.textContent = '✓ Rating saved! Thank you.'; done.classList.add('show'); }
+  const btn = card?.querySelector('.frc-submit-btn');
+  if (btn) btn.textContent = '✓ Update Rating';
+  if (card) card.dataset.val = String(val);
+  showToast('Rated ' + itemName + ' — ' + val + '/5 ⭐');
+  renderMenuDay(appData.days[activeDay]);
+}
+
+function toggleReviews(key) {
+  const list = document.getElementById('rcl-' + key);
+  if (list) list.classList.toggle('open');
+}
+
+// ────────────────────────────────────────
+// RANKING PAGE
+// ────────────────────────────────────────
+function setRankFilter(btn, filter) {
+  document.querySelectorAll('.rank-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentRankFilter = filter;
+  renderRanking();
+}
+
+function setTimeFilter(btn, filter) {
+  document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTimeFilter = filter;
+  renderRanking();
+}
+
+function getFilteredAvgRating(itemName) {
+  const reviews = DB.getReviews();
+  const key = foodKey(itemName);
+  if (!reviews[key]?.ratings?.length) return { avg: 0, count: 0 };
+  let ratings = reviews[key].ratings;
+  if (currentTimeFilter !== 'all') {
+    const cutoff = currentTimeFilter === 'week'
+      ? Date.now() - 7 * 24 * 60 * 60 * 1000
+      : Date.now() - 30 * 24 * 60 * 60 * 1000;
+    ratings = ratings.filter(r => r.ts && r.ts > cutoff);
+  }
+  if (!ratings.length) return { avg: 0, count: 0 };
+  const avg = ratings.reduce((s, r) => s + r.value, 0) / ratings.length;
+  return { avg: Math.round(avg * 10) / 10, count: ratings.length };
+}
+
+function buildRankingPage() {
+  if (!appData) return;
+  renderRanking();
+}
+
+function renderRanking() {
+  const list = document.getElementById('ranking-list');
+  if (!list || !appData) return;
+  list.innerHTML = '';
+
+  const allItems = new Map();
+  appData.days.forEach(day => {
+    ['BREAKFAST', 'LUNCH', 'DINNER'].forEach(meal => {
+      (day[meal] || []).forEach(item => {
+        if (!item || !item.trim()) return;
+        const key = foodKey(item);
+        if (!allItems.has(key)) {
+          const { avg, count } = getFilteredAvgRating(item);
+          const reviews = DB.getReviews();
+          const hidden = DB.getHidden();
+          const comments = (reviews[key]?.comments || []).filter(c => !hidden[key + '::' + c.email]);
+          allItems.set(key, { itemName: item, meal, avg, count, comments });
+        }
+      });
+    });
+  });
+
+  const reviews = DB.getReviews();
+  Object.keys(reviews).forEach(key => {
+    if (!allItems.has(key)) {
+      const { avg, count } = getFilteredAvgRating(reviews[key].itemName);
+      const hidden = DB.getHidden();
+      const comments = (reviews[key].comments || []).filter(c => !hidden[key + '::' + c.email]);
+      allItems.set(key, { itemName: reviews[key].itemName, meal: reviews[key].meal || 'UNKNOWN', avg, count, comments });
+    }
+  });
+
+  let items = [...allItems.values()].filter(i => i.avg > 0);
+  if (currentRankFilter !== 'all') items = items.filter(i => i.meal === currentRankFilter);
+  items.sort((a, b) => b.avg - a.avg || b.count - a.count);
+
+  // Most-reviewed banner
+  const allForCount = [...allItems.values()];
+  const mostReviewed = allForCount.filter(i => i.count > 0).sort((a, b) => b.count - a.count)[0];
+  if (mostReviewed) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(181,135,58,0.1);border:1px solid rgba(181,135,58,0.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;gap:10px;align-items:center;';
+    banner.innerHTML = '<span style="font-size:20px;">🔥</span><div><div style="font-weight:800;">Most Reviewed: ' + mostReviewed.itemName + '</div><div style="color:var(--muted);font-size:12px;">' + mostReviewed.count + ' ratings · avg ' + mostReviewed.avg.toFixed(1) + '/5</div></div>';
+    list.appendChild(banner);
+  }
+
+  if (!items.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;padding:40px;color:var(--muted);font-size:14px;';
+    empty.innerHTML = 'No ratings for this period yet.<br><br><a style="color:var(--accent2);font-weight:700;cursor:pointer;" onclick="goReview()">Go to Reviews →</a>';
+    list.appendChild(empty);
+    return;
+  }
+
+  items.forEach((item, idx) => {
+    const pos = idx + 1;
+    let posClass = 'other', posLabel = '#' + pos;
+    if (pos === 1) { posClass = 'gold'; posLabel = '🥇'; }
+    else if (pos === 2) { posClass = 'silver'; posLabel = '🥈'; }
+    else if (pos === 3) { posClass = 'bronze'; posLabel = '🥉'; }
+
+    const el = document.createElement('div');
+    el.className = 'rank-item';
+    el.style.animationDelay = (idx * 0.04) + 's';
+
+    const trendBadge = isTrending(item.itemName) ? ' <span class="badge badge-trending">🔥 Hot</span>' : '';
+
+    const cmtHTML = item.comments.length
+      ? '<button class="rank-comments-toggle" onclick="toggleRankComments(\'rc-' + foodKey(item.itemName) + '\')">💬 ' + item.comments.length + ' review' + (item.comments.length !== 1 ? 's' : '') + '</button><div class="rank-comments" id="rc-' + foodKey(item.itemName) + '">' +
+        item.comments.map(c => '<div class="rc-entry"><div class="rc-avatar">' + c.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() + '</div><div style="flex:1"><div style="display:flex;gap:6px;align-items:center;margin-bottom:2px;"><span class="rc-name">' + c.name.split(' ')[0] + '</span><span class="rc-val">' + c.value.toFixed(1) + '★</span></div><div class="rc-comment">"' + c.comment + '"</div></div><div class="rc-date">' + c.date + '</div></div>').join('') +
+        '</div>'
+      : '';
+
+    el.innerHTML = '<div class="rank-pos ' + posClass + '">' + posLabel + '</div><div class="rank-info"><div class="rank-name">' + item.itemName + trendBadge + '</div><div class="rank-meta"><span class="rm-tag">' + item.meal.charAt(0) + item.meal.slice(1).toLowerCase() + '</span><span>' + item.count + ' rating' + (item.count !== 1 ? 's' : '') + '</span></div>' + cmtHTML + '</div><div class="rank-score-wrap"><div class="rank-score">' + item.avg.toFixed(1) + '</div><div class="rank-stars-row">' + starsHTML(item.avg, 13) + '</div><div class="rank-score-label">/ 5.0</div></div>';
+    list.appendChild(el);
+  });
+}
+
+function toggleRankComments(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// ────────────────────────────────────────
+// PROFILE PAGE
+// ────────────────────────────────────────
+function goProfile() {
+  if (!currentUser) { showPage('page-login'); return; }
+  if (currentUser.isAdmin) { showPage('page-admin'); buildAdminPage(); return; }
+  showPage('page-profile');
+}
+
+function buildProfilePage() {
+  if (!currentUser) return;
+  const initials = currentUser.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  document.getElementById('prof-avatar').textContent = initials;
+  document.getElementById('prof-name').textContent = currentUser.name;
+  document.getElementById('prof-email').textContent = currentUser.email;
+  const u = DB.getUsers()[currentUser.email] || {};
+  document.getElementById('prof-name-inp').value = currentUser.name;
+  document.getElementById('prof-mobile-inp').value = u.mobile || '';
+
+  const reviews = DB.getReviews();
+  const myReviews = [];
+  Object.values(reviews).forEach(r => {
+    const myRating = (r.ratings || []).find(rt => rt.email === currentUser.email);
+    if (myRating) {
+      const myComment = (r.comments || []).find(c => c.email === currentUser.email);
+      myReviews.push({ item: r.itemName, meal: r.meal, value: myRating.value, date: myRating.date, comment: myComment?.comment || '' });
+    }
+  });
+
+  const listEl = document.getElementById('my-reviews-list');
+  if (!myReviews.length) {
+    listEl.innerHTML = '<div class="empty-state" style="padding:20px;text-align:center;color:var(--muted);">No reviews yet. <a style="color:var(--accent2);cursor:pointer;" onclick="goReview()">Rate some food →</a></div>';
+    return;
+  }
+  myReviews.sort((a, b) => b.value - a.value);
+  listEl.innerHTML = myReviews.map(r => '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="flex:1;"><div style="font-weight:700;font-size:13px;">' + r.item + '</div>' + (r.comment ? '<div style="font-size:12px;color:var(--muted2);font-style:italic;">"' + r.comment + '"</div>' : '') + '<div style="font-size:11px;color:var(--muted);">' + (r.meal ? r.meal.charAt(0) + r.meal.slice(1).toLowerCase() : '') + ' · ' + r.date + '</div></div><div style="font-size:18px;font-weight:900;color:var(--star);font-family:\'JetBrains Mono\',monospace;">' + r.value.toFixed(1) + '</div></div>').join('');
+}
+
+function saveProfile() {
+  const name   = document.getElementById('prof-name-inp').value.trim();
+  const mobile = document.getElementById('prof-mobile-inp').value.trim();
+  if (!name) { showToast('Name cannot be empty'); return; }
+  const users = DB.getUsers();
+  if (users[currentUser.email]) { users[currentUser.email].name = name; users[currentUser.email].mobile = mobile; DB.setUsers(users); }
+  currentUser.name = name; DB.set('session', currentUser);
+  updateUserAreas();
+  document.getElementById('prof-name').textContent = name;
+  document.getElementById('prof-avatar').textContent = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  showToast('Profile updated! ✅');
+}
+
+// ────────────────────────────────────────
+// ADMIN PAGE
+// ────────────────────────────────────────
+function buildAdminPage() {
+  if (!currentUser?.isAdmin) return;
+  buildMessComparison();
+  buildMostReviewed();
+  buildReviewModeration();
+  buildUsersTable();
+}
+
+function buildMessComparison() {
+  const el = document.getElementById('mess-compare-body');
+  if (!el) return;
+  const reviews = DB.getReviews();
+  const allRatings = Object.values(reviews).flatMap(r => r.ratings || []);
+  const totalRatings = allRatings.length;
+  const totalComments = Object.values(reviews).reduce((s, r) => s + (r.comments || []).length, 0);
+  const overallAvg = totalRatings ? (allRatings.reduce((s, r) => s + r.value, 0) / totalRatings).toFixed(2) : 'N/A';
+  el.innerHTML = '<p style="font-size:12px;color:var(--muted2);margin-bottom:12px;">Overall portal stats. Per-mess breakdown requires mess-tagged data.</p>' +
+    makeCompareRow('Total Ratings', totalRatings, Math.min(100, totalRatings * 5), 'linear-gradient(90deg,var(--accent2),var(--accent))') +
+    makeCompareRow('Avg Score', overallAvg, overallAvg !== 'N/A' ? overallAvg / 5 * 100 : 0, '') +
+    makeCompareRow('Comments', totalComments, Math.min(100, totalComments * 8), 'linear-gradient(90deg,#2e7d50,#7c5cbf)');
+}
+
+function makeCompareRow(label, score, pct, bg) {
+  return '<div class="compare-row"><div class="compare-label">' + label + '</div><div class="compare-bar-wrap"><div class="mess-compare-bar" style="width:' + pct + '%;' + (bg ? 'background:' + bg + ';' : '') + '"></div></div><div class="compare-score">' + score + '</div></div>';
+}
+
+function buildMostReviewed() {
+  const el = document.getElementById('most-reviewed-body');
+  if (!el) return;
+  const reviews = DB.getReviews();
+  const items = Object.values(reviews).filter(r => r.ratings?.length).sort((a, b) => b.ratings.length - a.ratings.length);
+  if (!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;">No ratings yet.</div>'; return; }
+  el.innerHTML = items.slice(0, 3).map((item, i) => {
+    const medals = ['🥇', '🥈', '🥉'];
+    const avg = item.ratings.reduce((s, r) => s + r.value, 0) / item.ratings.length;
+    return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="font-size:20px;">' + medals[i] + '</span><div style="flex:1;font-weight:700;">' + item.itemName + '</div><div style="font-size:12px;color:var(--muted);">' + item.ratings.length + ' reviews</div><div style="font-weight:800;color:var(--star);font-family:\'JetBrains Mono\',monospace;">' + avg.toFixed(1) + '★</div></div>';
+  }).join('');
+}
+
+function buildReviewModeration() {
+  const el = document.getElementById('mod-reviews-body');
+  if (!el) return;
+  const reviews = DB.getReviews();
+  const hidden = DB.getHidden();
+  let html = '';
+  let found = false;
+  Object.values(reviews).forEach(r => {
+    (r.comments || []).forEach(c => {
+      found = true;
+      const hk = foodKey(r.itemName) + '::' + c.email;
+      const isHid = !!hidden[hk];
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;' + (isHid ? 'opacity:0.5;' : '') + '"><div style="flex:1;"><strong>' + r.itemName + '</strong> — <span style="color:var(--muted2);">' + c.name.split(' ')[0] + '</span><div style="color:var(--muted);font-style:italic;font-size:12px;">"' + c.comment + '"</div></div><button class="btn-sm ' + (isHid ? 'btn-success' : 'btn-danger') + '" onclick="toggleHideReview(\'' + hk + '\',this)">' + (isHid ? '👁 Unhide' : '🚫 Hide') + '</button></div>';
+    });
+  });
+  el.innerHTML = found ? html : '<div style="color:var(--muted);font-size:13px;">No comments yet.</div>';
+}
+
+function toggleHideReview(hk, btn) {
+  const hidden = DB.getHidden();
+  if (hidden[hk]) { delete hidden[hk]; btn.textContent = '🚫 Hide'; btn.className = 'btn-sm btn-danger'; btn.closest('div[style]').style.opacity = '1'; }
+  else { hidden[hk] = true; btn.textContent = '👁 Unhide'; btn.className = 'btn-sm btn-success'; btn.closest('div[style]').style.opacity = '0.5'; }
+  DB.setHidden(hidden);
+}
+
+function buildUsersTable() {
+  const tbody = document.getElementById('users-tbody');
+  if (!tbody) return;
+  const users = DB.getUsers();
+  const rows = Object.values(users);
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">No users yet.</td></tr>'; return; }
+  tbody.innerHTML = rows.map(u => '<tr><td style="font-weight:700;">' + u.name + '</td><td style="color:var(--muted2);font-size:12px;">' + u.email + '</td><td>' + (u.mobile || '—') + '</td><td style="font-size:11px;color:var(--muted);">' + (u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-IN') : '—') + '</td><td><button class="btn-sm btn-danger" onclick="deleteUser(\'' + u.email + '\')">Remove</button></td></tr>').join('');
+}
+
+function deleteUser(email) {
+  if (!confirm('Remove user ' + email + '? This cannot be undone.')) return;
+  const users = DB.getUsers();
+  delete users[email];
+  DB.setUsers(users);
+  buildUsersTable();
+  showToast('User removed.');
+}
+
+function exportCSV() {
+  const reviews = DB.getReviews();
+  const rows = [['Food Item', 'Meal', 'Avg Rating', 'Total Ratings', 'Total Comments']];
+  Object.values(reviews).forEach(r => {
+    const c = (r.ratings || []).length;
+    if (!c) return;
+    const avg = (r.ratings.reduce((s, v) => s + v.value, 0) / c).toFixed(2);
+    rows.push([r.itemName, r.meal || '', avg, c, (r.comments || []).length]);
+  });
+  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'niser_mess_ratings.csv';
+  a.click();
+  showToast('CSV exported! 📥');
+}
+
+// ────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────
+async function init() {
+  updateUserAreas();
+  let csv = SHEET_CSV_URL ? await fetch(SHEET_CSV_URL).then(r => r.text()).catch(() => null) : null;
+  if (!csv) csv = DEMO;
+  appData = parseCSV(csv);
+  document.getElementById('update-time').textContent = 'Week of ' + (appData.updateTime || 'April 2026');
+  buildMenuNav(appData.dayNames);
+  const ti = Math.min(todayIdx(appData.dayNames), appData.days.length - 1);
+  reviewActiveDay = ti;
+  setMenuDay(ti);
+}
+
+init();
+</script>
+</body>
+</html>
