@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complaints — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.complaint-wrap { flex:1; padding:24px; max-width:860px; margin:0 auto; width:100%; }
+.complaint-form-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; box-shadow:var(--shadow); }
+.complaint-type-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:18px; }
+.complaint-type-btn { background:var(--bg3); border:2px solid transparent; border-radius:var(--radius2); padding:12px; text-align:center; cursor:pointer; transition:all 0.15s; font-size:13px; font-weight:700; color:var(--muted2); }
+.complaint-type-btn:hover { border-color:var(--accent2); color:var(--accent2); }
+.complaint-type-btn.selected { border-color:var(--accent2); background:rgba(124,92,191,0.08); color:var(--accent2); }
+.complaint-type-btn .ct-emoji { font-size:22px; display:block; margin-bottom:5px; }
+.photo-upload-zone { border:2px dashed var(--border2); border-radius:var(--radius); padding:24px; text-align:center; cursor:pointer; transition:all 0.15s; position:relative; margin-bottom:14px; }
+.photo-upload-zone:hover { border-color:var(--accent2); background:rgba(124,92,191,0.03); }
+.photo-upload-zone input[type=file] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.photo-preview { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.photo-thumb { width:80px; height:80px; object-fit:cover; border-radius:8px; border:2px solid var(--border); }
+.complaint-list { margin-top:24px; }
+.complaint-item { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:var(--shadow); }
+.ci-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+.ci-type-badge { background:var(--bg3); border-radius:6px; padding:3px 10px; font-size:11px; font-weight:800; letter-spacing:0.04em; }
+.ci-status { font-size:11px; font-weight:700; padding:2px 8px; border-radius:5px; }
+.ci-status-open { background:rgba(192,57,43,0.1); color:var(--red); }
+.ci-status-resolved { background:rgba(46,125,80,0.1); color:var(--green); }
+.ci-status-inprogress { background:rgba(181,135,58,0.1); color:var(--accent); }
+.ci-title { font-size:14px; font-weight:800; margin-bottom:4px; }
+.ci-desc { font-size:13px; color:var(--muted2); line-height:1.5; }
+.ci-meta { font-size:11px; color:var(--muted); margin-top:8px; display:flex; gap:12px; flex-wrap:wrap; }
+.ci-photo { width:100%; max-width:300px; border-radius:8px; border:1px solid var(--border); margin-top:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<header class="site-header" id="site-header"></header>
+
+<div class="section-hero">
+  <h1>📣 Complaints &amp; Feedback</h1>
+  <p>Report hygiene issues, staff behaviour, food unavailability, and other mess-related concerns.</p>
+</div>
+
+<div class="complaint-wrap">
+  <div class="complaint-form-card" id="complaint-form-section">
+    <div style="font-size:16px;font-weight:800;margin-bottom:16px;">Submit a Complaint</div>
+
+    <div class="form-group">
+      <label class="form-label">Category *</label>
+      <div class="complaint-type-grid" id="type-grid">
+        <div class="complaint-type-btn" data-type="hygiene" onclick="selectType(this)"><span class="ct-emoji">🧹</span>Hygiene</div>
+        <div class="complaint-type-btn" data-type="staff" onclick="selectType(this)"><span class="ct-emoji">👨‍🍳</span>Staff Behaviour</div>
+        <div class="complaint-type-btn" data-type="unavailability" onclick="selectType(this)"><span class="ct-emoji">🚫</span>Food Unavailability</div>
+        <div class="complaint-type-btn" data-type="quality" onclick="selectType(this)"><span class="ct-emoji">⚠️</span>Food Quality</div>
+        <div class="complaint-type-btn" data-type="quantity" onclick="selectType(this)"><span class="ct-emoji">📉</span>Insufficient Quantity</div>
+        <div class="complaint-type-btn" data-type="other" onclick="selectType(this)"><span class="ct-emoji">📝</span>Other</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Brief Title *</label>
+      <input class="form-input" type="text" id="c-title" placeholder="e.g. Cockroach found in dining area">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Detailed Description *</label>
+      <textarea class="frc-comment-inp" id="c-desc" rows="4" placeholder="Describe the issue in detail — when, where, what happened…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">
+        Photo / Evidence
+        <span id="photo-required-note" style="color:var(--red);font-size:10px;margin-left:6px;display:none;">⚠️ Required for this category</span>
+      </label>
+      <div class="photo-upload-zone" id="photo-zone" onclick="triggerFileInput()">
+        <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
+        <div id="photo-zone-label">
+          <div style="font-size:24px;margin-bottom:6px;">📷</div>
+          <div style="font-size:13px;color:var(--muted2);font-weight:600;">Click to upload photo(s)</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">JPG, PNG — max 5MB each</div>
+        </div>
+        <div class="photo-preview" id="photo-preview"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Your Name <span style="color:var(--muted);font-size:10px;">(auto-filled if logged in)</span></label>
+      <input class="form-input" type="text" id="c-name" placeholder="Your name or leave blank for anonymous">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact Email <span style="color:var(--muted);font-size:10px;">(optional — for follow-up)</span></label>
+      <input class="form-input" type="email" id="c-email" placeholder="xyz@niser.ac.in">
+    </div>
+
+    <div class="form-error" id="c-error"></div>
+    <button class="btn-main" id="c-submit-btn" onclick="submitComplaint()">📣 Submit Complaint</button>
+  </div>
+
+  <!-- Complaints list -->
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+      <div style="font-size:16px;font-weight:800;">Recent Complaints</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select class="form-input" id="c-filter" onchange="renderComplaints()" style="width:auto;font-size:12px;padding:5px 10px;">
+          <option value="all">All Categories</option>
+          <option value="hygiene">Hygiene</option>
+          <option value="staff">Staff Behaviour</option>
+          <option value="unavailability">Food Unavailability</option>
+          <option value="quality">Food Quality</option>
+          <option value="quantity">Insufficient Quantity</option>
+          <option value="other">Other</option>
+        </select>
+        <button onclick="loadComplaints()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
+      </div>
+    </div>
+    <div class="complaint-list" id="complaints-list">
+      <div class="state-box"><div class="spinner"></div><span>Loading…</span></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvsERH7D8w8hAE7TlU0gyF5izS0zqNrUPfLYLD2D6BkXjsXf0-1rUWv8y3Mgx3nFX8/exec';
+const CLOUDINARY_CLOUD_NAME    = 'dquiexkla';
+const CLOUDINARY_UPLOAD_PRESET = 'eventpass_unsigned';
+
+let selectedType = '';
+let uploadedPhotoUrls = [];
+const REQUIRE_PHOTO_TYPES = ['hygiene', 'unavailability'];
+
+renderHeader('complaints');
+renderFooter();
+
+if (currentUser && !currentUser.isAnon) {
+  document.getElementById('c-name').value  = currentUser.name  || '';
+  document.getElementById('c-email').value = currentUser.email || '';
+}
+
+// Load complaints from sheet on page open
+function loadComplaints() {
+  document.getElementById('complaints-list').innerHTML = '<div class="state-box"><div class="spinner"></div><span>Loading from server…</span></div>';
+  fetchFromSheet('complaints', rows => {
+    if (rows && rows.length) mergeSheetComplaints(rows);
+    renderComplaints();
+  });
+}
+loadComplaints();
+
+function selectType(el) {
+  document.querySelectorAll('.complaint-type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = el.dataset.type;
+  const noteEl = document.getElementById('photo-required-note');
+  if (noteEl) noteEl.style.display = REQUIRE_PHOTO_TYPES.includes(selectedType) ? 'inline' : 'none';
+}
+
+function triggerFileInput() {}
+
+function handlePhotos(inp) {
+  const preview = document.getElementById('photo-preview');
+  Array.from(inp.files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.createElement('img');
+      img.src = e.target.result; img.className = 'photo-thumb';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method:'POST', body:fd });
+  const data = await res.json();
+  return data.secure_url;
+}
+
+async function submitComplaint() {
+  const title = document.getElementById('c-title').value.trim();
+  const desc  = document.getElementById('c-desc').value.trim();
+  const name  = document.getElementById('c-name').value.trim() || 'Anonymous';
+  const email = document.getElementById('c-email').value.trim();
+  const errEl = document.getElementById('c-error');
+  errEl.classList.remove('show');
+
+  if (!selectedType) { errEl.textContent='Please select a complaint category.'; errEl.classList.add('show'); return; }
+  if (!title)  { errEl.textContent='Please enter a brief title.'; errEl.classList.add('show'); return; }
+  if (!desc)   { errEl.textContent='Please describe the issue.'; errEl.classList.add('show'); return; }
+
+  const photoInput = document.getElementById('photo-input');
+  const files = Array.from(photoInput.files);
+  if (REQUIRE_PHOTO_TYPES.includes(selectedType) && !files.length) {
+    errEl.textContent=`A photo is required for "${selectedType}" complaints.`; errEl.classList.add('show'); return;
+  }
+
+  const btn = document.getElementById('c-submit-btn');
+  btn.disabled = true; btn.textContent = 'Uploading…';
+
+  uploadedPhotoUrls = [];
+  try {
+    for (const f of files) {
+      btn.textContent = `Uploading photo ${uploadedPhotoUrls.length+1}/${files.length}…`;
+      uploadedPhotoUrls.push(await uploadToCloudinary(f));
+    }
+  } catch(e) {
+    btn.disabled=false; btn.textContent='📣 Submit Complaint';
+    errEl.textContent='Photo upload failed. Please try again.'; errEl.classList.add('show'); return;
+  }
+
+  btn.textContent = 'Submitting…';
+  const now = Date.now();
+  const complaint = {
+    id:        String(now),
+    type:      selectedType,
+    title, desc, name, email,
+    photos:    uploadedPhotoUrls,
+    status:    'open',
+    adminNote: '',
+    ts:        now,
+    date:      new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+    userEmail: currentUser ? currentUser.email : 'guest',
+  };
+
+  const complaints = DB.getComplaints();
+  complaints.unshift(complaint);
+  DB.setComplaints(complaints);
+
+  // Push to sheet
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({
+      action:'addComplaint', type:complaint.type, title:complaint.title,
+      desc:complaint.desc, name:complaint.name, email:complaint.email,
+      photos:complaint.photos.join(', '), status:complaint.status,
+      date:complaint.date, userEmail:complaint.userEmail,
+    })
+  }).catch(()=>{});
+
+  btn.disabled=false; btn.textContent='📣 Submit Complaint';
+  showToast('✅ Complaint submitted!');
+  selectedType=''; uploadedPhotoUrls=[];
+  document.querySelectorAll('.complaint-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('c-title').value='';
+  document.getElementById('c-desc').value='';
+  document.getElementById('photo-preview').innerHTML='';
+  document.getElementById('photo-input').value='';
+  renderComplaints();
+}
+
+function renderComplaints() {
+  const list = document.getElementById('complaints-list');
+  if (!list) return;
+  const filter = document.getElementById('c-filter')?.value || 'all';
+  let complaints = DB.getComplaints();
+  if (filter !== 'all') complaints = complaints.filter(c => c.type === filter);
+  if (!complaints.length) {
+    list.innerHTML = '<div class="state-box" style="min-height:100px;">No complaints yet.</div>';
+    return;
+  }
+  const typeLabels = { hygiene:'🧹 Hygiene', staff:'👨‍🍳 Staff Behaviour', unavailability:'🚫 Food Unavailability', quality:'⚠️ Food Quality', quantity:'📉 Insufficient Quantity', other:'📝 Other' };
+  list.innerHTML = complaints.map(c => `
+    <div class="complaint-item">
+      <div class="ci-header">
+        <span class="ci-type-badge">${typeLabels[c.type]||c.type}</span>
+        <span class="ci-status ci-status-${c.status||'open'}">${c.status==='resolved'?'✅ Resolved':c.status==='inprogress'?'🔄 In Progress':'🔴 Open'}</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:auto;">${c.date}</span>
+      </div>
+      <div class="ci-title">${c.title}</div>
+      <div class="ci-desc">${c.desc}</div>
+      ${c.photos&&c.photos.length?c.photos.map(url=>`<img src="${url}" class="ci-photo" onclick="window.open('${url}','_blank')" alt="Evidence photo">`).join(''):''}
+      <div class="ci-meta">
+        <span>By: <strong>${c.name||'Anonymous'}</strong></span>
+        ${c.adminNote?`<span style="color:var(--accent2);">📌 Admin: ${c.adminNote}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

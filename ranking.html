@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rankings — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<header class="site-header" id="site-header"></header>
+
+<div class="section-hero">
+  <h1>🏆 Food Rankings</h1>
+  <p>Top-rated dishes across all meals — voted by students.</p>
+  <div class="section-hero-anon" style="margin-top:10px;">
+    <a href="anon-login.html" style="display:inline-block;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;text-decoration:none;">🕵️ Review Anonymously</a>
+  </div>
+</div>
+
+<div class="ranking-wrap">
+  <div class="ranking-filters" id="rank-filters">
+    <button class="rank-filter-btn active" onclick="setRankFilter(this,'all')">All</button>
+    <button class="rank-filter-btn" onclick="setRankFilter(this,'BREAKFAST')">Breakfast</button>
+    <button class="rank-filter-btn" onclick="setRankFilter(this,'LUNCH')">Lunch</button>
+    <button class="rank-filter-btn" onclick="setRankFilter(this,'DINNER')">Dinner</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <span style="font-size:12px;color:var(--muted2);font-weight:700;align-self:center;">Period:</span>
+    <button class="rank-filter-btn time-filter-btn active" onclick="setTimeFilter(this,'all')">All Time</button>
+    <button class="rank-filter-btn time-filter-btn" onclick="setTimeFilter(this,'week')">This Week</button>
+    <button class="rank-filter-btn time-filter-btn" onclick="setTimeFilter(this,'month')">This Month</button>
+  </div>
+  <div class="ranking-list" id="ranking-list">
+    <div class="state-box"><div class="spinner"></div><span>Loading rankings…</span></div>
+  </div>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script src="app.js"></script>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvsERH7D8w8hAE7TlU0gyF5izS0zqNrUPfLYLD2D6BkXjsXf0-1rUWv8y3Mgx3nFX8/exec';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZ3e1ImbssqqrpQRO8KuEKvL8Zq69xZVApqriqcvRlisgOFHDzSvXbtyEYLI0UhQBLpLcuoFxtQJ8N/pub?gid=127683587&single=true&output=csv';
+
+renderHeader('ranking');
+renderFooter();
+initRankingPage();
+</script>
+</body>
+</html>

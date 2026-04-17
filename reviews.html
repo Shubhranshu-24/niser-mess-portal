@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviews — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<header class="site-header" id="site-header"></header>
+
+<div class="section-hero">
+  <h1>⭐ Food Reviews</h1>
+  <p>Rate and review each dish. Your feedback helps improve the mess.</p>
+  <div class="section-hero-anon">
+    <a href="anon-login.html" style="display:inline-block;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;text-decoration:none;">🕵️ Review Anonymously — no one will know it's you</a>
+  </div>
+</div>
+
+<div style="flex:1;padding:20px 24px 32px;max-width:1100px;margin:0 auto;width:100%;">
+  <!-- Anonymous prompt banner (shown when NOT logged in or not anon) -->
+  <div id="anon-banner" class="anon-review-banner" style="display:none;">
+    <div class="anon-review-banner-text">
+      🕵️ <strong>Want to review without revealing your identity?</strong><br>
+      Create a free anonymous ID — your reviews appear under a code name like <em>NISERite-4829</em>. Your real identity is encrypted and never visible to others.
+    </div>
+    <a href="anon-login.html" class="anon-review-banner-btn">Review Anonymously →</a>
+  </div>
+
+  <div class="review-day-sel" id="review-day-nav"></div>
+  <div id="review-content"><div class="state-box"><div class="spinner"></div><span>Loading…</span></div></div>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script src="app.js"></script>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvsERH7D8w8hAE7TlU0gyF5izS0zqNrUPfLYLD2D6BkXjsXf0-1rUWv8y3Mgx3nFX8/exec';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZ3e1ImbssqqrpQRO8KuEKvL8Zq69xZVApqriqcvRlisgOFHDzSvXbtyEYLI0UhQBLpLcuoFxtQJ8N/pub?gid=127683587&single=true&output=csv';
+
+renderHeader('review');
+renderFooter();
+
+// Show anon banner if user is NOT logged in anonymously
+if (!currentUser || !currentUser.isAnon) {
+  document.getElementById('anon-banner').style.display = 'flex';
+}
+
+initReviewPage();
+</script>
+</body>
+</html>

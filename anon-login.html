@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anonymous Login — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<header class="site-header" id="site-header"></header>
+
+<div class="page-body">
+  <div class="auth-wrap">
+    <div class="auth-card" style="max-width:460px;">
+      <div class="auth-logo" style="font-size:28px;">🕵️</div>
+      <div class="auth-title">Anonymous Access</div>
+      <div class="auth-sub">Review food without revealing your identity to others</div>
+
+      <div style="background:rgba(124,92,191,0.08);border:1px solid rgba(124,92,191,0.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--muted2);line-height:1.7;">
+        <strong>Privacy Assurance:</strong> Your name, roll no. and email are stored in <strong>encrypted form</strong> and will <strong>never be shown</strong> to other users. Your reviews appear under a randomly assigned code name like <strong>NISERite-4829</strong>.
+      </div>
+
+      <!-- Tab switcher -->
+      <div style="display:flex;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px;">
+        <button id="anon-tab-new" onclick="switchAnonTab('new')" style="flex:1;padding:9px;font-size:13px;font-weight:700;background:var(--text);color:#fff;border:none;cursor:pointer;">Create New ID</button>
+        <button id="anon-tab-existing" onclick="switchAnonTab('existing')" style="flex:1;padding:9px;font-size:13px;font-weight:700;background:var(--bg3);color:var(--muted2);border:none;cursor:pointer;">Use Existing ID</button>
+      </div>
+
+      <!-- CREATE NEW -->
+      <div id="anon-new-panel">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input class="form-input" type="text" id="anon-new-name" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Roll Number *</label>
+          <input class="form-input" type="text" id="anon-new-roll" placeholder="e.g. 2201234">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email * <span style="color:var(--accent);font-size:10px;">(@niser.ac.in only)</span></label>
+          <input class="form-input" type="email" id="anon-new-email" placeholder="xy.z@niser.ac.in">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Programme *</label>
+          <select class="form-input" id="anon-new-prog">
+            <option value="">— Select —</option>
+            <option value="Int MSc">Integrated MSc</option>
+            <option value="Int PhD">Integrated PhD</option>
+            <option value="PhD">PhD</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Set Anonymous Password *</label>
+          <input class="form-input" type="password" id="anon-new-pass" placeholder="Min 6 characters (for future logins)">
+        </div>
+        <div class="form-error" id="anon-new-error"></div>
+        <button class="btn-main" onclick="createAnonAccount()">Create Anonymous ID 🕵️</button>
+      </div>
+
+      <!-- USE EXISTING -->
+      <div id="anon-existing-panel" style="display:none;">
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted2);">
+          Enter your anonymous email and password to resume your anonymous session.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Anonymous Email *</label>
+          <input class="form-input" type="email" id="anon-ex-email" placeholder="xy.z@niser.ac.in">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Anonymous Password *</label>
+          <input class="form-input" type="password" id="anon-ex-pass" placeholder="Your anonymous password">
+        </div>
+        <div class="form-error" id="anon-ex-error"></div>
+        <button class="btn-main" onclick="loginAnonAccount()">Log In Anonymously 🕵️</button>
+        <div class="auth-switch" style="margin-top:10px;font-size:12px;">
+          Want a fresh identity? <a onclick="switchAnonTab('new')">Create new ID</a>
+        </div>
+      </div>
+
+      <div class="auth-switch" style="margin-top:14px;"><a href="login.html">← Back to regular log in</a></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvsERH7D8w8hAE7TlU0gyF5izS0zqNrUPfLYLD2D6BkXjsXf0-1rUWv8y3Mgx3nFX8/exec';
+
+renderHeader('');
+renderFooter();
+
+function switchAnonTab(tab) {
+  const isNew = tab === 'new';
+  document.getElementById('anon-new-panel').style.display      = isNew ? '' : 'none';
+  document.getElementById('anon-existing-panel').style.display = isNew ? 'none' : '';
+  document.getElementById('anon-tab-new').style.cssText      = `flex:1;padding:9px;font-size:13px;font-weight:700;background:${isNew ? 'var(--text)' : 'var(--bg3)'};color:${isNew ? '#fff' : 'var(--muted2)'};border:none;cursor:pointer;`;
+  document.getElementById('anon-tab-existing').style.cssText = `flex:1;padding:9px;font-size:13px;font-weight:700;background:${isNew ? 'var(--bg3)' : 'var(--text)'};color:${isNew ? 'var(--muted2)' : '#fff'};border:none;cursor:pointer;`;
+}
+
+function generateCodeName() { return 'NISERite-' + Math.floor(1000 + Math.random() * 9000); }
+
+function obfuscate(str) {
+  const key = 'NISER2024SITU';
+  return btoa(str.split('').map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length))).join(''));
+}
+function deobfuscate(encoded) {
+  const key = 'NISER2024SITU';
+  try { return atob(encoded).split('').map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length))).join(''); }
+  catch { return '[decode error]'; }
+}
+
+function createAnonAccount() {
+  const name  = document.getElementById('anon-new-name').value.trim();
+  const roll  = document.getElementById('anon-new-roll').value.trim();
+  const email = document.getElementById('anon-new-email').value.trim().toLowerCase();
+  const prog  = document.getElementById('anon-new-prog').value;
+  const pass  = document.getElementById('anon-new-pass').value;
+  const errEl = document.getElementById('anon-new-error');
+  errEl.classList.remove('show');
+
+  if (!name || !roll || !email || !prog || !pass) { errEl.textContent = 'All fields are required.'; errEl.classList.add('show'); return; }
+  if (!/@niser\.ac\.in$/.test(email)) { errEl.textContent = 'Only @niser.ac.in emails allowed.'; errEl.classList.add('show'); return; }
+  if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+
+  const anonUsers = DB.getAnonUsers();
+  if (anonUsers[email]) {
+    if (!confirm('You already have an anonymous ID: ' + anonUsers[email].codeName + '\n\nCreate a NEW anonymous ID? (Your old reviews will stay under the old code)')) {
+      loginWithAnonData(anonUsers[email], pass); return;
+    }
+  }
+
+  const codeName = generateCodeName();
+  const newAnon = {
+    codeName,
+    encName:   obfuscate(name),
+    encRoll:   obfuscate(roll),
+    encEmail:  obfuscate(email),
+    email,
+    passHash:  obfuscate(pass),
+    programme: prog,
+    joinedAt:  new Date().toISOString(),
+    reviewCount: 0
+  };
+  anonUsers[email] = newAnon;
+  DB.setAnonUsers(anonUsers);
+  pushAnonUserToSheet(newAnon);
+
+  DB.set('session', { email: 'anon::' + email, name: codeName, codeName, isAnon: true, programme: prog });
+  window.location.href = 'index.html';
+}
+
+function loginAnonAccount() {
+  const email = document.getElementById('anon-ex-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('anon-ex-pass').value;
+  const errEl = document.getElementById('anon-ex-error');
+  errEl.classList.remove('show');
+  const anonUsers = DB.getAnonUsers();
+  if (!anonUsers[email]) { errEl.textContent = 'No anonymous account found for this email.'; errEl.classList.add('show'); return; }
+  const anon = anonUsers[email];
+  if (deobfuscate(anon.passHash) !== pass) { errEl.textContent = 'Incorrect password.'; errEl.classList.add('show'); return; }
+  loginWithAnonData(anon, pass);
+}
+
+function loginWithAnonData(anon, pass) {
+  if (deobfuscate(anon.passHash) !== pass) { showToast('Incorrect password.'); return; }
+  DB.set('session', { email: 'anon::' + anon.email, name: anon.codeName, codeName: anon.codeName, isAnon: true, programme: anon.programme });
+  window.location.href = 'index.html';
+}
+
+function pushAnonUserToSheet(anon) {
+  if (!APPS_SCRIPT_URL) return;
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      action:    'addAnonUser',
+      codeName:  anon.codeName,
+      encName:   anon.encName,
+      encRoll:   anon.encRoll,
+      encEmail:  anon.encEmail,
+      programme: anon.programme,
+      joinedAt:  anon.joinedAt
+    })
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>
