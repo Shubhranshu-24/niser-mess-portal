@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.poll-admin-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:14px;margin-bottom:12px;}
+.complaint-admin-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:14px;margin-bottom:10px;}
+.ci-type-badge{background:var(--bg2);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:800;}
+.update-form-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;}
+.poll-admin-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.edit-poll-form{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:12px;margin-top:10px;display:none;}
+.edit-poll-form.open{display:block;}
+/* Decrypt modal */
+.decrypt-gate{background:rgba(181,135,58,0.08);border:1px solid rgba(181,135,58,0.25);border-radius:10px;padding:14px 18px;margin-bottom:16px;}
+/* Archive section */
+.archived-polls-section{margin-top:24px;border-top:2px dashed var(--border2);padding-top:20px;}
+/* Publisher tag */
+.published-by-tag{font-size:11px;color:var(--muted2);font-style:italic;margin-top:6px;}
+/* Complaint status sections */
+.complaint-status-tabs{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+.cst-tab{flex:1;padding:8px;font-size:11px;font-weight:700;background:var(--bg3);color:var(--muted2);border:none;cursor:pointer;}
+.cst-tab.active{background:var(--text);color:#fff;}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+
+<!-- DECRYPT MODAL -->
+<div class="modal-overlay hidden" id="decrypt-modal">
+  <div class="modal-card">
+    <div class="modal-title">🔓 Decrypted Identity</div>
+    <div class="modal-row"><strong>Code Name</strong><span id="md-codename">—</span></div>
+    <div class="modal-row"><strong>Real Name</strong><span id="md-name">—</span></div>
+    <div class="modal-row"><strong>Roll No.</strong><span id="md-roll">—</span></div>
+    <div class="modal-row"><strong>Email</strong><span id="md-email">—</span></div>
+    <div class="modal-row"><strong>Programme</strong><span id="md-prog">—</span></div>
+    <div class="modal-row"><strong>Joined</strong><span id="md-joined">—</span></div>
+    <div class="modal-warn">⚠️ Sensitive — admin use only. Handle with care.</div>
+    <button class="modal-close" onclick="closeDecryptModal()">Close</button>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN GATE -->
+<div id="admin-login-gate" style="min-height:100vh;display:flex;flex-direction:column;">
+  <header class="site-header">
+    <a class="header-brand" href="index.html"><div class="header-logo">N</div>
+      <div><div class="header-title">NISER Mess</div><div class="header-sub">Admin Panel</div></div></a>
+    <nav class="header-nav"><a class="nav-btn" href="index.html">← Back to Site</a></nav>
+  </header>
+  <div class="admin-login-wrap" style="flex:1;">
+    <div class="admin-login-card">
+      <div class="admin-login-logo">🛠</div>
+      <div class="auth-title">Admin Login</div>
+      <div class="auth-sub">SITU / Mess Management Portal</div>
+      <div class="form-group"><label class="form-label">Admin Email</label>
+        <input class="form-input" type="email" id="adm-email" placeholder="situ@niser.ac.in" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <div class="form-group"><label class="form-label">Password</label>
+        <input class="form-input" type="password" id="adm-pass" placeholder="Admin password" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <div class="form-error" id="adm-error">Invalid admin credentials.</div>
+      <button class="btn-main" onclick="doAdminLogin()">Log In as Admin</button>
+      <div style="text-align:center;margin-top:14px;font-size:11px;color:var(--muted);">Admin access only — NISER Mess Committee</div>
+    </div>
+  </div>
+  <footer class="site-footer"><strong>NISER Mess Portal</strong> · Admin Panel</footer>
+</div>
+
+<!-- FULL ADMIN PANEL -->
+<div id="admin-panel-wrap" style="display:none;min-height:100vh;flex-direction:column;">
+  <header class="site-header" id="site-header-admin">
+    <a class="header-brand" href="index.html">
+      <div class="header-logo" style="background:linear-gradient(135deg,#7c5cbf,#4a1a9c);">🛠</div>
+      <div><div class="header-title">NISER Mess</div><div class="header-sub">Admin Panel — SITU</div></div></a>
+    <nav class="header-nav">
+      <a class="nav-btn" href="index.html">← Back to Site</a>
+      <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn-sm btn-danger" onclick="adminLogout()" style="padding:7px 14px;">Log Out</button>
+    </nav>
+  </header>
+
+  <!-- Admin Tabs -->
+  <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:0;overflow-x:auto;">
+    <button class="admin-tab active" id="atab-stats"      onclick="switchAdminTab('stats')">📊 Statistics</button>
+    <button class="admin-tab" id="atab-reviews"           onclick="switchAdminTab('reviews')">💬 Reviews</button>
+    <button class="admin-tab" id="atab-users"             onclick="switchAdminTab('users')">👥 Users</button>
+    <button class="admin-tab" id="atab-anon"              onclick="switchAdminTab('anon')">🕵️ Anonymous</button>
+    <button class="admin-tab" id="atab-polls"             onclick="switchAdminTab('polls')">📊 Polls</button>
+    <button class="admin-tab" id="atab-complaints"        onclick="switchAdminTab('complaints')">📣 Complaints</button>
+    <button class="admin-tab" id="atab-updates"           onclick="switchAdminTab('updates')">🔔 Updates</button>
+  </div>
+
+  <div style="flex:1;padding:24px;max-width:1200px;margin:0 auto;width:100%;">
+
+    <!-- STATISTICS TAB -->
+    <div id="admin-panel-stats">
+      <div class="section-hero" style="border-radius:12px;margin-bottom:20px;">
+        <h1>📊 Data Analytics Dashboard</h1><p>Complete food &amp; user statistics.</p>
+      </div>
+      <div class="stat-cards-grid" id="stat-cards"></div>
+      <div class="admin-section"><div class="admin-section-head">🏆 Top Rated Food Items</div><div class="admin-section-body" id="top-foods-body">Loading…</div></div>
+      <div class="admin-section"><div class="admin-section-head">⚠️ Lowest Rated Items</div><div class="admin-section-body" id="low-foods-body">Loading…</div></div>
+      <div class="admin-section"><div class="admin-section-head">📧 EmailJS System Status</div><div class="admin-section-body" id="email-status-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div></div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div id="admin-panel-reviews" style="display:none;">
+      <div class="admin-section"><div class="admin-section-head">💬 Review Moderation</div><div class="admin-section-body" id="mod-reviews-body">Loading…</div></div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="admin-panel-users" style="display:none;">
+      <div class="admin-section"><div class="admin-section-head">👥 Registered Users</div>
+        <div class="admin-section-body" style="overflow-x:auto;">
+          <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Mobile</th><th>Programme</th><th>Joined</th></tr></thead>
+          <tbody id="users-tbody"></tbody></table>
+        </div></div>
+    </div>
+
+    <!-- ANONYMOUS TAB -->
+    <div id="admin-panel-anon" style="display:none;">
+      <!-- Decrypt gate -->
+      <div class="decrypt-gate" id="decrypt-gate">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--accent);">🔐 Decrypt Mode Locked</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;">Enter the decrypt password to reveal anonymous identities.</div>
+        <div style="display:flex;gap:8px;">
+          <input class="form-input" type="password" id="decrypt-gate-pass" placeholder="Decrypt password" style="max-width:220px;font-size:12px;">
+          <button class="btn-sm btn-success" onclick="unlockDecrypt()">Unlock</button>
+        </div>
+        <div class="form-error" id="decrypt-gate-error" style="margin-top:6px;"></div>
+      </div>
+      <div style="background:rgba(124,92,191,0.07);border:1px solid rgba(124,92,191,0.2);border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--muted2);line-height:1.7;">
+        🔒 Anonymous users' real identities are XOR-obfuscated. Unlock decrypt mode to reveal individual details.
+      </div>
+      <div class="admin-section"><div class="admin-section-head">🕵️ Anonymous Reviewer Accounts</div>
+        <div class="admin-section-body" style="overflow-x:auto;">
+          <table class="admin-table"><thead><tr><th>Code Name</th><th>Programme</th><th>Joined</th><th>Decrypt Identity</th></tr></thead>
+          <tbody id="anon-tbody"></tbody></table>
+        </div></div>
+    </div>
+
+    <!-- POLLS TAB -->
+    <div id="admin-panel-polls" style="display:none;">
+      <!-- Publisher name -->
+      <div class="admin-section">
+        <div class="admin-section-head">👤 Publisher Name</div>
+        <div class="admin-section-body">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input class="form-input" type="text" id="publisher-name" placeholder="Your name (e.g. Rahul Sharma)" style="max-width:260px;">
+            <span style="font-size:12px;color:var(--muted2);">→ Published by <strong id="publisher-preview">Name</strong> — Mess Committee</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">This name will appear on all polls, updates, and complaint remarks you post.</div>
+        </div>
+      </div>
+
+      <!-- Create official poll -->
+      <div class="admin-section">
+        <div class="admin-section-head">➕ Create New Official Poll</div>
+        <div class="admin-section-body">
+          <div class="form-group"><label class="form-label">Poll Question *</label>
+            <input class="form-input" type="text" id="new-poll-q" placeholder="e.g. Should we add more South Indian dishes?"></div>
+          <div class="form-group"><label class="form-label">Description (optional)</label>
+            <input class="form-input" type="text" id="new-poll-desc" placeholder="Short context for students"></div>
+          <div class="form-group">
+            <label class="form-label">Options * (one per line, 2–6)</label>
+            <textarea class="frc-comment-inp" id="new-poll-opts" rows="4" placeholder="Yes, add more&#10;No, current is fine&#10;Reduce non-veg instead"></textarea>
+            <!-- Food items quick-add -->
+            <div style="margin-top:8px;">
+              <div style="font-size:11px;color:var(--muted2);font-weight:700;margin-bottom:4px;">Or pick food items from menu:</div>
+              <div id="food-items-picker" style="display:flex;flex-wrap:wrap;gap:4px;max-height:120px;overflow-y:auto;">
+                <div style="font-size:11px;color:var(--muted);">Loading menu items…</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Closes On (optional)</label>
+            <input class="form-input" type="date" id="new-poll-ends"></div>
+          <button class="btn-main" style="max-width:200px;" onclick="createOfficialPoll()">🗳 Create Official Poll</button>
+        </div>
+      </div>
+
+      <!-- Active official polls -->
+      <div class="admin-section"><div class="admin-section-head">📌 Active Official Polls</div>
+        <div class="admin-section-body" id="custom-polls-admin">Loading…</div></div>
+
+      <!-- Active community polls -->
+      <div class="admin-section"><div class="admin-section-head">✏️ Active Community Polls</div>
+        <div class="admin-section-body" id="user-polls-admin">Loading…</div></div>
+
+      <!-- Archived polls (closed >7 days) — admin only -->
+      <div class="admin-section archived-polls-section">
+        <div class="admin-section-head">🗄 Archived Polls <span style="font-size:11px;color:var(--muted);font-weight:400;">(closed more than 7 days ago — admin only)</span></div>
+        <div class="admin-section-body" id="archived-polls-admin">Loading…</div>
+      </div>
+    </div>
+
+    <!-- COMPLAINTS TAB -->
+    <div id="admin-panel-complaints" style="display:none;">
+      <div class="admin-section"><div class="admin-section-head">📣 Complaint Management</div>
+        <!-- Status tabs -->
+        <div class="complaint-status-tabs">
+          <button class="cst-tab active" onclick="switchComplaintAdminTab('open',this)">🔴 Open</button>
+          <button class="cst-tab" onclick="switchComplaintAdminTab('inprogress',this)">🔄 Processing</button>
+          <button class="cst-tab" onclick="switchComplaintAdminTab('resolved',this)">✅ Resolved</button>
+        </div>
+        <div class="admin-section-body" id="complaints-admin-body">Loading…</div>
+      </div>
+    </div>
+
+    <!-- UPDATES TAB -->
+    <div id="admin-panel-updates" style="display:none;">
+      <div class="admin-section"><div class="admin-section-head">➕ Post New Update</div>
+        <div class="admin-section-body">
+          <div class="form-group"><label class="form-label">Type</label>
+            <select class="form-input" id="upd-type" style="width:auto;">
+              <option value="announcement">📢 Announcement</option>
+              <option value="resolved">✅ Issue Resolved</option>
+              <option value="improvement">🔧 Improvement</option>
+              <option value="alert">🚨 Alert</option>
+              <option value="notice">📋 Notice</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Title *</label>
+            <input class="form-input" type="text" id="upd-title" placeholder="Update title"></div>
+          <div class="form-group"><label class="form-label">Body *</label>
+            <textarea class="frc-comment-inp" id="upd-body" rows="4" placeholder="Detailed update message…"></textarea></div>
+          <div class="form-group"><label class="form-label">Related Complaint ID (optional)</label>
+            <input class="form-input" type="text" id="upd-complaint" placeholder="e.g. 1748001234567"></div>
+          <button class="btn-main" style="max-width:220px;" onclick="postUpdate()">🔔 Post Update</button>
+        </div></div>
+      <div class="admin-section"><div class="admin-section-head">🔔 All Updates</div>
+        <div class="admin-section-body" id="updates-admin-body">Loading…</div></div>
+    </div>
+
+  </div>
+  <footer class="site-footer"><strong>NISER Mess Portal</strong> · Admin Panel (SITU) — For internal use only<div style="margin-top:6px;font-size:11px;opacity:0.5;">Developed by Boss</div></footer>
+</div>
+
+<script src="shared.js"></script>
+<script src="app.js"></script>
+<script>
+const ADMIN_EMAIL  = 'shubhranshu@niser.ac.in';
+const ADMIN_PASS   = 'situ123';
+const ADMIN_EMAIL2 = 'admin@niser.ac.in';
+const ADMIN_PASS2  = 'SHUBU-24';
+const DECRYPT_PASSWORD = 'decrypt-me';
+let _decryptUnlocked = false;
+let _adminComplaintsData = [], _adminComplaintTab = 'open';
+let _adminPollsData = [];
+
+function obfuscate(str) {
+  const key='NISER2024SITU';
+  return btoa(str.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^key.charCodeAt(i%key.length))).join(''));
+}
+function deobfuscate(encoded) {
+  const key='NISER2024SITU';
+  try{return atob(encoded).split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^key.charCodeAt(i%key.length))).join('');}
+  catch{return '[decode error]';}
+}
+
+function foodKey(n){return n.trim().toUpperCase().replace(/\s+/g,'_');}
+function getPublisher() {
+  const name=document.getElementById('publisher-name')?.value.trim()||'Admin';
+  return name+' — Mess Committee';
+}
+document.addEventListener('input', e => {
+  if(e.target.id==='publisher-name'){
+    const el=document.getElementById('publisher-preview');
+    if(el) el.textContent=e.target.value.trim()||'Name';
+  }
+});
+
+(function init() {
+  const s=Session.get();
+  if(s&&s.isAdmin){showAdminPanel();buildAdminStats();}
+})();
+
+function doAdminLogin() {
+  const email=document.getElementById('adm-email').value.trim().toLowerCase();
+  const pass=document.getElementById('adm-pass').value;
+  const errEl=document.getElementById('adm-error'); errEl.classList.remove('show');
+  if((email===ADMIN_EMAIL&&pass===ADMIN_PASS)||(email===ADMIN_EMAIL2&&pass===ADMIN_PASS2)){
+    Session.set({email,name:'Admin SITU',isAdmin:true});
+    showAdminPanel(); buildAdminStats(); showToast('Welcome, Admin SITU! 🛠');
+  } else { errEl.classList.add('show'); }
+}
+
+function showAdminPanel(){
+  document.getElementById('admin-login-gate').style.display='none';
+  document.getElementById('admin-panel-wrap').style.display='flex';
+  document.getElementById('admin-panel-wrap').style.flexDirection='column';
+}
+function adminLogout(){
+  Session.clear();
+  document.getElementById('admin-panel-wrap').style.display='none';
+  document.getElementById('admin-login-gate').style.display='flex';
+  showToast('Logged out.');
+}
+
+function switchAdminTab(tab){
+  ['stats','reviews','users','anon','polls','complaints','updates'].forEach(t=>{
+    const p=document.getElementById('admin-panel-'+t); if(p) p.style.display=t===tab?'':'none';
+    const b=document.getElementById('atab-'+t); if(b) b.classList.toggle('active',t===tab);
+  });
+  if(tab==='stats')      buildAdminStats();
+  if(tab==='reviews')    buildReviewModeration();
+  if(tab==='users')      buildUsersTable();
+  if(tab==='anon')       buildAnonTable();
+  if(tab==='polls')      buildPollsAdmin();
+  if(tab==='complaints') buildComplaintsAdmin();
+  if(tab==='updates')    buildUpdatesAdmin();
+}
+
+// ── DECRYPT GATE ──────────────────────────────────────
+function unlockDecrypt() {
+  const pass=document.getElementById('decrypt-gate-pass').value;
+  const errEl=document.getElementById('decrypt-gate-error'); errEl.classList.remove('show');
+  if(pass===DECRYPT_PASSWORD){
+    _decryptUnlocked=true;
+    document.getElementById('decrypt-gate').style.display='none';
+    showToast('🔓 Decrypt mode unlocked');
+    buildAnonTable();
+  } else {
+    errEl.textContent='Wrong decrypt password.'; errEl.classList.add('show');
+  }
+}
+
+// ── STATS ─────────────────────────────────────────────
+async function buildAdminStats() {
+  const statCards=document.getElementById('stat-cards');
+  if(statCards) statCards.innerHTML='<div style="color:var(--muted);font-size:13px;">Loading stats…</div>';
+  let reviews={}, complaints=[];
+  try {
+    const rv=await fetchReviews(); if(rv.status==='ok') reviews=rv.reviews;
+    const cv=await fetchComplaints(); if(cv.status==='ok') complaints=cv.complaints;
+  } catch(e){}
+
+  const allRatings=Object.values(reviews).flatMap(r=>r.ratings||[]);
+  const totalRatings=allRatings.length;
+  const overallAvg=totalRatings?(allRatings.reduce((s,r)=>s+r.value,0)/totalRatings).toFixed(2):0;
+  const openComplaints=complaints.filter(c=>c.status==='open').length;
+
+  if(statCards) statCards.innerHTML=[
+    {val:totalRatings,label:'Total Ratings',color:'#b5873a'},
+    {val:allRatings.filter(r=>r.email.startsWith('anon::')).length,label:'Anonymous Ratings',color:'#7c5cbf'},
+    {val:overallAvg>0?overallAvg+' ★':'N/A',label:'Overall Avg Rating',color:'#f0a500'},
+    {val:Object.keys(reviews).length,label:'Food Items Rated',color:'#1a1917'},
+    {val:complaints.length,label:'Total Complaints',color:'#c0392b'},
+    {val:openComplaints,label:'Open Complaints',color:'#e67e22'},
+  ].map(s=>`<div class="stat-card"><div class="stat-card-val" style="color:${s.color}">${s.val}</div><div class="stat-card-label">${s.label}</div></div>`).join('');
+
+  const items=Object.values(reviews).filter(r=>r.ratings?.length)
+    .map(r=>({...r,avg:r.ratings.reduce((s,x)=>s+x.value,0)/r.ratings.length}))
+    .sort((a,b)=>b.avg-a.avg);
+  const topEl=document.getElementById('top-foods-body');
+  if(topEl) topEl.innerHTML=items.slice(0,10).map((item,i)=>`
+    <div class="compare-row">
+      <div class="compare-label">${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${item.itemName}</div>
+      <div class="compare-bar-wrap"><div class="mess-compare-bar" style="width:${(item.avg/5*100).toFixed(0)}%"></div></div>
+      <div class="compare-score">${item.avg.toFixed(2)}</div>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:13px;">No ratings yet.</div>';
+
+  const lowEl=document.getElementById('low-foods-body');
+  if(lowEl) lowEl.innerHTML=items.filter(r=>r.ratings.length>=2).slice(-5).reverse().map(item=>`
+    <div class="compare-row">
+      <div class="compare-label" style="color:var(--red);">⚠️ ${item.itemName}</div>
+      <div class="compare-bar-wrap"><div class="mess-compare-bar" style="width:${(item.avg/5*100).toFixed(0)}%;background:linear-gradient(90deg,#c0392b,#e74c3c);"></div></div>
+      <div class="compare-score" style="color:var(--red);">${item.avg.toFixed(2)}</div>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:13px;">Not enough data yet.</div>';
+
+  const emailEl=document.getElementById('email-status-grid');
+  if(emailEl&&typeof getEmailSystemStatus==='function'){
+    const statuses=getEmailSystemStatus();
+    emailEl.innerHTML=statuses.map(s=>`<div style="padding:8px 10px;border-radius:8px;background:${s.active?'rgba(46,125,80,0.10)':'var(--bg3)'};border:1px solid ${s.active?'rgba(46,125,80,0.3)':'var(--border)'};">
+      <div style="font-weight:700;color:${s.active?'var(--green)':'var(--muted2)'};">Sys ${s.num}${s.active?' ✓ ACTIVE':''}</div>
+      <div style="font-size:12px;color:var(--muted);">${s.remaining}/${s.limit} left</div>
+    </div>`).join('');
+  }
+}
+
+// ── REVIEW MODERATION ─────────────────────────────────
+async function buildReviewModeration() {
+  const el=document.getElementById('mod-reviews-body'); if(!el) return;
+  el.innerHTML='Loading…';
+  let reviews={};
+  try{const rv=await fetchReviews();if(rv.status==='ok')reviews=rv.reviews;}catch(e){}
+  let html='',found=false;
+  Object.values(reviews).forEach(r=>{
+    (r.comments||[]).forEach(c=>{
+      found=true;
+      const isAnon=c.email.startsWith('anon::');
+      html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <div style="flex:1;">
+          <strong>${r.itemName}</strong> — <span style="color:var(--muted2);">${isAnon?'🕵️ ':''}${c.name.split(' ')[0]}</span>
+          <div style="color:var(--muted);font-style:italic;font-size:12px;">"${c.comment}"</div>
+        </div>
+        <span style="font-size:11px;color:var(--muted);">${c.date}</span>
+      </div>`;
+    });
+  });
+  el.innerHTML=found?html:'<div style="color:var(--muted);font-size:13px;">No comments yet.</div>';
+}
+
+// ── USERS TABLE ───────────────────────────────────────
+async function buildUsersTable() {
+  const tbody=document.getElementById('users-tbody'); if(!tbody) return;
+  tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Loading…</td></tr>';
+  // Users data comes from sheet — display what we know from the session and any sheet data
+  // Note: for privacy, we show the review data aggregated
+  let reviews={};
+  try{const rv=await fetchReviews();if(rv.status==='ok')reviews=rv.reviews;}catch(e){}
+  // Get unique emails from reviews
+  const usersMap={};
+  Object.values(reviews).forEach(r=>{
+    (r.ratings||[]).forEach(rt=>{
+      if(!rt.email.startsWith('anon::')&&rt.email){
+        if(!usersMap[rt.email]) usersMap[rt.email]={email:rt.email,name:rt.name,reviews:0};
+        usersMap[rt.email].reviews++;
+      }
+    });
+  });
+  const rows=Object.values(usersMap);
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">No user review data yet.</td></tr>';return;}
+  tbody.innerHTML=rows.map(u=>`
+    <tr>
+      <td style="font-weight:700;">${u.name||'—'}</td>
+      <td style="color:var(--muted2);font-size:12px;">${u.email}</td>
+      <td>—</td><td>—</td>
+      <td style="font-weight:700;">${u.reviews} reviews</td>
+    </tr>`).join('');
+}
+
+// ── ANONYMOUS TABLE ───────────────────────────────────
+async function buildAnonTable() {
+  const tbody=document.getElementById('anon-tbody'); if(!tbody) return;
+  tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">Loading…</td></tr>';
+  let reviews={};
+  try{const rv=await fetchReviews();if(rv.status==='ok')reviews=rv.reviews;}catch(e){}
+  // Collect anon user info from reviews
+  const anonMap={};
+  Object.values(reviews).forEach(r=>{
+    (r.ratings||[]).forEach(rt=>{
+      if(rt.email.startsWith('anon::')){
+        if(!anonMap[rt.email]) anonMap[rt.email]={codeName:rt.name,email:rt.email,reviews:0,programme:'—'};
+        anonMap[rt.email].reviews++;
+      }
+    });
+  });
+  const rows=Object.values(anonMap);
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">No anonymous reviews yet.</td></tr>';return;}
+  tbody.innerHTML=rows.map(a=>`
+    <tr>
+      <td><span class="anon-badge">${a.codeName}</span></td>
+      <td><span style="font-size:11px;background:var(--bg3);padding:2px 8px;border-radius:4px;font-weight:700;">${a.programme}</span></td>
+      <td>—</td>
+      <td>${_decryptUnlocked
+        ? `<div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">${a.email}</div>`
+        : '<span style="font-size:11px;color:var(--muted);">🔒 Locked</span>'
+      }</td>
+    </tr>`).join('');
+}
+
+// ── POLLS ADMIN ───────────────────────────────────────
+async function buildPollsAdmin() {
+  document.getElementById('custom-polls-admin').innerHTML='Loading…';
+  document.getElementById('user-polls-admin').innerHTML='Loading…';
+  document.getElementById('archived-polls-admin').innerHTML='Loading…';
+  try{const res=await fetchPolls();if(res.status==='ok')_adminPollsData=res.polls||[];}catch(e){_adminPollsData=[];}
+
+  // Load food items for picker
+  loadFoodItemsPicker();
+
+  const now=Date.now(), sevenDaysAgo=now-7*24*60*60*1000;
+  const official = _adminPollsData.filter(p=>p.type==='official');
+  const user     = _adminPollsData.filter(p=>p.type==='user');
+  const archived = _adminPollsData.filter(p=>p.active===false && p.closedAt && p.closedAt < sevenDaysAgo);
+  const activeOfficial = official.filter(p=>!(p.active===false && p.closedAt && p.closedAt < sevenDaysAgo));
+  const activeUser     = user.filter(p=>!(p.active===false && p.closedAt && p.closedAt < sevenDaysAgo));
+
+  renderPollsAdminList('custom-polls-admin', activeOfficial, 'official');
+  renderPollsAdminList('user-polls-admin', activeUser, 'user');
+  renderPollsAdminList('archived-polls-admin', archived, null, true);
+}
+
+async function loadFoodItemsPicker() {
+  const picker=document.getElementById('food-items-picker'); if(!picker) return;
+  try{
+    const res=await fetchMenuItems();
+    if(res.status==='ok'&&res.items.length){
+      picker.innerHTML=res.items.map(item=>`<button type="button" onclick="addFoodItemToOpts('${item.replace(/'/g,"\\'")}')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--muted2);">${item}</button>`).join('');
+    } else {picker.innerHTML='<div style="font-size:11px;color:var(--muted);">No menu items yet.</div>';}
+  }catch(e){picker.innerHTML='<div style="font-size:11px;color:var(--muted);">Could not load items.</div>';}
+}
+
+function addFoodItemToOpts(item) {
+  const ta=document.getElementById('new-poll-opts');
+  if(ta) ta.value=(ta.value?ta.value.trim()+'\n':'')+item;
+}
+
+function renderPollsAdminList(containerId, polls, type, isArchive) {
+  const el=document.getElementById(containerId); if(!el) return;
+  if(!polls.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;">No ${isArchive?'archived':type==='official'?'official':'community'} polls.</div>`;return;}
+  el.innerHTML=polls.map((p,idx)=>{
+    const isActive=p.active!==false&&(!p.expiresAt||Date.now()<p.expiresAt);
+    return `<div class="poll-admin-card" id="padmin-${p.id}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+        <div>
+          <strong>${p.question}</strong>
+          <span style="font-size:10px;background:var(--bg2);color:var(--muted2);padding:2px 8px;border-radius:4px;margin-left:6px;">${p.type==='official'?'📌 Official':'✏️ Community'}</span>
+          ${!isActive?'<span style="font-size:10px;background:rgba(192,57,43,0.1);color:var(--red);padding:2px 8px;border-radius:5px;font-weight:700;margin-left:6px;">🔒 Closed</span>':''}
+          ${p.adminRemark?`<span style="font-size:10px;background:${p.remarkType==='accepted'?'rgba(46,125,80,0.1)':'rgba(192,57,43,0.1)'};color:${p.remarkType==='accepted'?'var(--green)':'var(--red)'};padding:2px 8px;border-radius:5px;font-weight:700;margin-left:6px;">${p.remarkType==='accepted'?'✅ Accepted':'❌ Rejected'}</span>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${!isArchive?`<button class="btn-sm" onclick="toggleEditPollAdmin('${p.id}')">✏️ Edit</button>
+          ${isActive
+            ?`<button class="btn-sm btn-danger" onclick="adminClosePoll('${p.id}')">🔒 Close</button>`
+            :`<button class="btn-sm btn-success" onclick="adminReopenPoll('${p.id}')">🔓 Reopen</button>`}
+          <button class="btn-sm btn-danger" onclick="adminDeletePoll('${p.id}')">🗑 Delete</button>`:''}
+          <button class="btn-sm" onclick="toggleRemarkForm('${p.id}')">📝 Remark</button>
+        </div>
+      </div>
+      ${p.desc?`<div style="font-size:12px;color:var(--muted2);margin-bottom:8px;">${p.desc}</div>`:''}
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Created by ${p.createdBy||'Admin'} · ${p.expiresAt?'Closes '+new Date(p.expiresAt).toLocaleDateString('en-IN'):'No end date'}</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:4px;">${p.options.join(' | ')}</div>
+
+      <!-- Edit form -->
+      <div class="edit-poll-form" id="epf-${p.id}">
+        <div class="form-group"><label class="form-label" style="font-size:11px;">Question</label>
+          <input class="form-input" style="font-size:12px;" id="epq-${p.id}" value="${p.question.replace(/"/g,'&quot;')}"></div>
+        <div class="form-group"><label class="form-label" style="font-size:11px;">Description</label>
+          <input class="form-input" style="font-size:12px;" id="epd-${p.id}" value="${(p.desc||'').replace(/"/g,'&quot;')}"></div>
+        <div class="form-group"><label class="form-label" style="font-size:11px;">Expires At (ISO)</label>
+          <input class="form-input" style="font-size:12px;" id="epe-${p.id}" value="${p.expiresAt?new Date(p.expiresAt).toISOString().slice(0,10):''}"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-sm btn-success" onclick="adminSavePoll('${p.id}')">💾 Save</button>
+          <button class="btn-sm" onclick="toggleEditPollAdmin('${p.id}')">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Remark form -->
+      <div class="edit-poll-form" id="rrf-${p.id}">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--accent2);">📝 Admin Remark (shown as stamp on poll)</div>
+        <div class="form-group"><label class="form-label" style="font-size:11px;">Decision</label>
+          <select class="form-input" style="font-size:12px;width:auto;" id="rrt-${p.id}">
+            <option value="accepted">✅ Accepted</option>
+            <option value="rejected">❌ Rejected</option>
+          </select></div>
+        <div class="form-group"><label class="form-label" style="font-size:11px;">Reason / Note *</label>
+          <input class="form-input" style="font-size:12px;" id="rrn-${p.id}" placeholder="e.g. Will be added from next month" value="${(p.adminRemark||'').replace(/"/g,'&quot;')}"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-sm btn-success" onclick="adminSaveRemark('${p.id}')">✅ Post Remark</button>
+          <button class="btn-sm" onclick="toggleRemarkForm('${p.id}')">Cancel</button>
+        </div>
+      </div>
+      ${p.adminRemark?`<div style="font-size:11px;color:${p.remarkType==='accepted'?'var(--green)':'var(--red)'};margin-top:6px;">📌 Remark: "${p.adminRemark}" — by ${p.remarkBy||'SITU Mess Committee'}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleEditPollAdmin(id){const f=document.getElementById('epf-'+id);if(f)f.classList.toggle('open');}
+function toggleRemarkForm(id){const f=document.getElementById('rrf-'+id);if(f)f.classList.toggle('open');}
+
+async function adminSavePoll(id) {
+  const q=document.getElementById('epq-'+id)?.value.trim();
+  const d=document.getElementById('epd-'+id)?.value.trim();
+  const e=document.getElementById('epe-'+id)?.value;
+  await sheetPost({action:'updatePoll',pollId:id,question:q,desc:d,expiresAt:e?new Date(e).toISOString():''});
+  showToast('Poll updated ✅'); buildPollsAdmin();
+}
+
+async function adminClosePoll(id) {
+  if(!confirm('Close this poll? Voting will be disabled.')) return;
+  await sheetPost({action:'closePoll',pollId:id}); showToast('Poll closed.'); buildPollsAdmin();
+}
+async function adminReopenPoll(id) {
+  await sheetPost({action:'reopenPoll',pollId:id}); showToast('Poll reopened ✅'); buildPollsAdmin();
+}
+async function adminDeletePoll(id) {
+  if(!confirm('Delete this poll permanently?')) return;
+  await sheetPost({action:'deletePoll',pollId:id}); showToast('Poll deleted.'); buildPollsAdmin();
+}
+async function adminSaveRemark(id) {
+  const remarkType=document.getElementById('rrt-'+id)?.value||'accepted';
+  const remark=document.getElementById('rrn-'+id)?.value.trim();
+  if(!remark){showToast('Please enter a reason.');return;}
+  const remarkBy=getPublisher();
+  await sheetPost({action:'addPollRemark',pollId:id,remark,remarkType,remarkBy});
+  showToast('Remark posted ✅'); buildPollsAdmin();
+}
+
+async function createOfficialPoll() {
+  const q=document.getElementById('new-poll-q').value.trim();
+  const desc=document.getElementById('new-poll-desc').value.trim();
+  const opts=document.getElementById('new-poll-opts').value.trim().split('\n').map(l=>l.trim()).filter(Boolean);
+  const ends=document.getElementById('new-poll-ends').value;
+  if(!q){showToast('Please enter a question');return;}
+  if(opts.length<2){showToast('Add at least 2 options');return;}
+  const publisher=getPublisher();
+  await sheetPost({
+    action:'addPoll', pollId:'o_'+Date.now(), type:'official',
+    question:q, desc, options:opts,
+    createdBy:publisher, createdByEmail:'admin@niser.ac.in',
+    createdAt:new Date().toISOString(),
+    expiresAt:ends?new Date(ends).toISOString():'',
+  });
+  showToast('Official poll created! ✅');
+  document.getElementById('new-poll-q').value=''; document.getElementById('new-poll-desc').value='';
+  document.getElementById('new-poll-opts').value=''; document.getElementById('new-poll-ends').value='';
+  buildPollsAdmin();
+}
+
+// ── COMPLAINTS ADMIN ──────────────────────────────────
+async function buildComplaintsAdmin() {
+  const el=document.getElementById('complaints-admin-body'); if(!el) return;
+  el.innerHTML='Loading…';
+  try{const res=await fetchComplaints();if(res.status==='ok')_adminComplaintsData=res.complaints||[];}catch(e){_adminComplaintsData=[];}
+  renderComplaintsAdmin();
+}
+
+function switchComplaintAdminTab(tab, btn) {
+  _adminComplaintTab=tab;
+  document.querySelectorAll('.cst-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderComplaintsAdmin();
+}
+
+function renderComplaintsAdmin() {
+  const el=document.getElementById('complaints-admin-body'); if(!el) return;
+  const filtered=_adminComplaintsData.filter(c=>(c.status||'open')===_adminComplaintTab);
+  const typeLabels={hygiene:'🧹 Hygiene',staff:'👨‍🍳 Staff Behaviour',unavailability:'🚫 Food Unavailability',quality:'⚠️ Food Quality',quantity:'📉 Insufficient Quantity',other:'📝 Other'};
+  if(!filtered.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;">No ${_adminComplaintTab} complaints.</div>`;return;}
+  el.innerHTML=filtered.map((c,idx)=>`
+    <div class="complaint-admin-item" id="cadm-${c.rowIdx}">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <span class="ci-type-badge">${typeLabels[c.type]||c.type}</span>
+        <strong>${c.title}</strong>
+        <span style="margin-left:auto;font-size:11px;color:var(--muted);">${c.date}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted2);margin-bottom:8px;">${c.desc}</div>
+      ${c.photos&&c.photos.length?c.photos.map(url=>`<a href="${url}" target="_blank"><img src="${url}" style="width:80px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);margin-right:4px;" alt="photo"></a>`).join(''):''}
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">By: ${c.name||'Anonymous'} ${c.email?'('+c.email+')':''}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;color:var(--muted2);">Status:</span>
+        <select style="font-size:12px;padding:4px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);" onchange="updateComplaintStatus(${c.rowIdx},this.value)">
+          <option value="open"       ${(c.status||'open')==='open'?'selected':''}>🔴 Open</option>
+          <option value="inprogress" ${c.status==='inprogress'?'selected':''}>🔄 In Progress</option>
+          <option value="resolved"   ${c.status==='resolved'?'selected':''}>✅ Resolved</option>
+        </select>
+        <input type="text" value="${c.adminNote||''}" placeholder="Admin note (optional)" style="flex:1;font-size:12px;padding:4px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);min-width:150px;" onchange="updateComplaintNote(${c.rowIdx},this.value)">
+      </div>
+    </div>`).join('');
+}
+
+async function updateComplaintStatus(rowIdx,status){
+  await sheetPost({action:'updateComplaint',rowIdx,status});
+  const c=_adminComplaintsData.find(x=>x.rowIdx===rowIdx); if(c) c.status=status;
+  showToast('Status updated'); renderComplaintsAdmin();
+}
+async function updateComplaintNote(rowIdx,note){
+  await sheetPost({action:'updateComplaint',rowIdx,adminNote:note});
+  const c=_adminComplaintsData.find(x=>x.rowIdx===rowIdx); if(c) c.adminNote=note;
+}
+
+// ── UPDATES ADMIN ─────────────────────────────────────
+async function buildUpdatesAdmin() {
+  const el=document.getElementById('updates-admin-body'); if(!el) return;
+  el.innerHTML='Loading…';
+  let updates=[];
+  try{const res=await fetchUpdates();if(res.status==='ok')updates=res.updates;}catch(e){}
+  if(!updates.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;">No updates yet.</div>';return;}
+  const typeLabels={announcement:'📢',resolved:'✅',improvement:'🔧',alert:'🚨',notice:'📋'};
+  el.innerHTML=updates.map(u=>`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <span style="font-size:18px;flex-shrink:0;">${typeLabels[u.type]||'📋'}</span>
+      <div style="flex:1;">
+        <div style="font-weight:700;">${u.title}</div>
+        <div style="color:var(--muted2);font-size:12px;margin-top:2px;">${u.body}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${u.date} · ${u.postedBy||'Mess Committee'}</div>
+      </div>
+      <button class="btn-sm btn-danger" onclick="deleteUpdate(${u.rowIdx})">Delete</button>
+    </div>`).join('');
+}
+
+async function postUpdate() {
+  const type=document.getElementById('upd-type').value;
+  const title=document.getElementById('upd-title').value.trim();
+  const body=document.getElementById('upd-body').value.trim();
+  const rel=document.getElementById('upd-complaint').value.trim();
+  if(!title||!body){showToast('Title and body are required');return;}
+  const publisher=getPublisher();
+  const update={type,title,body,relatedComplaint:rel||'',postedBy:publisher,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})};
+  await sheetPost({action:'addUpdate',...update});
+  showToast('Update posted! ✅');
+  document.getElementById('upd-title').value=''; document.getElementById('upd-body').value=''; document.getElementById('upd-complaint').value='';
+  buildUpdatesAdmin();
+}
+
+async function deleteUpdate(rowIdx) {
+  if(!confirm('Delete this update?')) return;
+  await sheetPost({action:'deleteUpdate',rowIdx}); showToast('Deleted.'); buildUpdatesAdmin();
+}
+
+// ── CSV EXPORT ────────────────────────────────────────
+async function exportCSV() {
+  let reviews={};
+  try{const rv=await fetchReviews();if(rv.status==='ok')reviews=rv.reviews;}catch(e){}
+  const rows=[['Food Item','Meal','Avg Rating','Total Ratings','Total Comments','Anon Ratings']];
+  Object.values(reviews).forEach(r=>{
+    const c=(r.ratings||[]).length; if(!c) return;
+    const avg=(r.ratings.reduce((s,v)=>s+v.value,0)/c).toFixed(2);
+    const anonCount=r.ratings.filter(rt=>rt.email.startsWith('anon::')).length;
+    rows.push([r.itemName,r.meal||'',avg,c,(r.comments||[]).length,anonCount]);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='niser_mess_ratings.csv'; a.click();
+  showToast('CSV exported! 📥');
+}
+</script>
+</body>
+</html>

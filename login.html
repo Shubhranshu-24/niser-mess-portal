@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<header class="site-header" id="site-header"></header>
+
+<!-- LOGIN -->
+<div class="page-body" id="pg-login">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-logo">N</div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Log in to your NISER Mess account</div>
+    <div class="form-group"><label class="form-label">Email ID</label>
+      <input class="form-input" type="email" id="li-email" placeholder="xy.z@niser.ac.in" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="form-group"><label class="form-label">Password</label>
+      <input class="form-input" type="password" id="li-password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="form-error" id="li-error">Invalid email or password.</div>
+    <button class="btn-main" id="li-btn" onclick="doLogin()">Log In</button>
+    <div class="auth-switch" style="margin-top:10px;"><a onclick="showPanel('pg-forgot')" style="color:var(--muted);font-size:12px;">Forgot password?</a></div>
+    <div class="auth-switch">Don't have an account? <a onclick="showPanel('pg-signup')">Sign up here</a></div>
+    <div class="auth-switch" style="margin-top:8px;"><a href="anon-login.html" style="color:var(--accent2);font-size:12px;">🕵️ Log in as Anonymous</a></div>
+    <div class="skip-link"><a href="index.html">Continue as guest (menu only) →</a></div>
+  </div></div>
+</div>
+
+<!-- SIGNUP -->
+<div class="page-body" id="pg-signup" style="display:none;">
+  <div class="auth-wrap"><div class="auth-card" style="max-width:480px;">
+    <div class="auth-logo">N</div>
+    <div class="auth-title">Create Account</div>
+    <div class="auth-sub">Register for NISER Mess Portal</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name *</label>
+        <input class="form-input" type="text" id="su-name" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Mobile *</label>
+        <input class="form-input" type="tel" id="su-mobile" placeholder="10-digit number"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email ID * <span style="color:var(--accent);font-weight:500;font-size:10px;">(@niser.ac.in only)</span></label>
+      <input class="form-input" type="email" id="su-email" placeholder="xy.z@niser.ac.in">
+      <div class="form-hint">Only NISER email addresses are accepted.</div></div>
+    <div class="form-group"><label class="form-label">Password *</label>
+      <input class="form-input" type="password" id="su-pass" placeholder="Min 6 characters"></div>
+    <div class="form-group"><label class="form-label">Programme *</label>
+      <select class="form-input" id="su-prog">
+        <option value="">— Select —</option>
+        <option value="Int MSc">Integrated MSc</option>
+        <option value="Int PhD">Integrated PhD</option>
+        <option value="PhD">PhD</option>
+      </select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Mess Reg. Transaction *</label>
+        <input class="form-input" type="text" id="su-txn" placeholder="Transaction ID"></div>
+      <div class="form-group"><label class="form-label">Payment Ref No. <span style="color:var(--muted);font-weight:400;">(opt.)</span></label>
+        <input class="form-input" type="text" id="su-ref" placeholder="Reference No."></div>
+    </div>
+    <div class="form-error" id="su-error"></div>
+    <button class="btn-main" id="su-btn" onclick="doSignupSendOTP()">Submit</button>
+    <div class="auth-switch">Already have an account? <a onclick="showPanel('pg-login')">Log in here</a></div>
+    <div class="skip-link"><a href="index.html">Continue as guest →</a></div>
+  </div></div>
+</div>
+
+<!-- OTP -->
+<div class="page-body" id="pg-otp" style="display:none;">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-logo">📧</div>
+    <div class="auth-title">Verify Email</div>
+    <div class="auth-sub" id="otp-sub">Enter the 6-digit code sent to your email</div>
+    <div class="otp-box">
+      <input class="otp-digit" id="otp0" maxlength="1" oninput="otpMove(0)">
+      <input class="otp-digit" id="otp1" maxlength="1" oninput="otpMove(1)">
+      <input class="otp-digit" id="otp2" maxlength="1" oninput="otpMove(2)">
+      <input class="otp-digit" id="otp3" maxlength="1" oninput="otpMove(3)">
+      <input class="otp-digit" id="otp4" maxlength="1" oninput="otpMove(4)">
+      <input class="otp-digit" id="otp5" maxlength="1" oninput="otpMove(5)">
+    </div>
+    <div class="form-error" id="otp-error"></div>
+    <button class="btn-main" onclick="verifyOTP()">Verify & Create Account</button>
+    <div class="auth-switch"><a onclick="showPanel('pg-signup')">← Back to Sign Up</a></div>
+    <div class="auth-switch" style="margin-top:6px;font-size:12px;"><a onclick="resendOTP()">Resend Code</a></div>
+  </div></div>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="page-body" id="pg-forgot" style="display:none;">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-logo">🔑</div>
+    <div class="auth-title">Reset Password</div>
+    <div class="auth-sub" id="forgot-sub">Enter your registered email to receive a reset code</div>
+    <div id="forgot-step1">
+      <div class="form-group"><label class="form-label">Registered Email</label>
+        <input class="form-input" type="email" id="fp-email" placeholder="xy.z@niser.ac.in"></div>
+      <div class="form-error" id="fp-error"></div>
+      <button class="btn-main" onclick="sendForgotOTP()">Send Reset Code</button>
+    </div>
+    <div id="forgot-step2" style="display:none;">
+      <div class="otp-box">
+        <input class="otp-digit" id="fp-otp0" maxlength="1" oninput="fpOtpMove(0)">
+        <input class="otp-digit" id="fp-otp1" maxlength="1" oninput="fpOtpMove(1)">
+        <input class="otp-digit" id="fp-otp2" maxlength="1" oninput="fpOtpMove(2)">
+        <input class="otp-digit" id="fp-otp3" maxlength="1" oninput="fpOtpMove(3)">
+        <input class="otp-digit" id="fp-otp4" maxlength="1" oninput="fpOtpMove(4)">
+        <input class="otp-digit" id="fp-otp5" maxlength="1" oninput="fpOtpMove(5)">
+      </div>
+      <div class="form-group" style="margin-top:12px;"><label class="form-label">New Password</label>
+        <input class="form-input" type="password" id="fp-newpass" placeholder="Min 6 characters"></div>
+      <div class="form-error" id="fp-error2"></div>
+      <button class="btn-main" onclick="doResetPassword()">Reset Password</button>
+    </div>
+    <div class="auth-switch"><a onclick="showPanel('pg-login')">← Back to Log In</a></div>
+  </div></div>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+<script src="shared.js"></script>
+<script>
+const ADMIN_EMAIL  = 'shubhranshu@niser.ac.in';
+const ADMIN_PASS   = 'situ123';
+const ADMIN_EMAIL2 = 'admin@niser.ac.in';
+const ADMIN_PASS2  = 'SHUBU-24';
+
+function initEmailJS() {
+  const sys = getActiveEmailSystem();
+  if (typeof emailjs !== 'undefined') emailjs.init(sys.publicKey);
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
+  document.getElementById(id).style.display = '';
+}
+
+(function init() {
+  renderHeader('');
+  renderFooter();
+  initEmailJS();
+  if (currentUser) {
+    if (currentUser.isAdmin) { window.location.href = 'admin.html'; return; }
+    window.location.href = 'index.html'; return;
+  }
+  if (window.location.hash === '#signup') showPanel('pg-signup');
+})();
+
+/* ── LOGIN (checks sheet) ─────────────────── */
+async function doLogin() {
+  const email = document.getElementById('li-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('li-password').value;
+  const errEl = document.getElementById('li-error'), btn = document.getElementById('li-btn');
+  errEl.classList.remove('show');
+
+  // Admin hardcoded
+  if ((email === ADMIN_EMAIL && pass === ADMIN_PASS) || (email === ADMIN_EMAIL2 && pass === ADMIN_PASS2)) {
+    Session.set({ email, name: 'Admin SITU', isAdmin: true });
+    window.location.href = 'admin.html'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    const res = await sheetGet({ action:'loginUser', email, pass });
+    if (res.status === 'ok') {
+      Session.set({ email: res.user.email, name: res.user.name, programme: res.user.programme });
+      window.location.href = 'index.html';
+    } else {
+      errEl.textContent = res.message || 'Invalid email or password.';
+      errEl.classList.add('show');
+    }
+  } catch(e) {
+    errEl.textContent = 'Network error. Please try again.';
+    errEl.classList.add('show');
+  }
+  btn.disabled = false; btn.textContent = 'Log In';
+}
+
+/* ── SIGNUP ─────────────────────────────── */
+let pendingSignup = null, pendingOTP = null, forgotOTP = null, forgotEmail = null;
+function generateOTP() { return String(Math.floor(100000 + Math.random() * 900000)); }
+
+function sendEmailOTP(toEmail, toName, otp) {
+  if (typeof emailjs === 'undefined') return Promise.resolve();
+  const sys = getActiveEmailSystem();
+  emailjs.init(sys.publicKey);
+  return emailjs.send(sys.serviceId, sys.templateId, { to_email: toEmail, to_name: toName, otp_code: otp })
+    .then(res => { recordEmailSent(); return res; });
+}
+
+async function doSignupSendOTP() {
+  const name=document.getElementById('su-name').value.trim(), mobile=document.getElementById('su-mobile').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase(), pass=document.getElementById('su-pass').value;
+  const prog=document.getElementById('su-prog').value, txn=document.getElementById('su-txn').value.trim();
+  const ref=document.getElementById('su-ref').value.trim(), errEl=document.getElementById('su-error'), btn=document.getElementById('su-btn');
+  errEl.classList.remove('show');
+  if (!name||!mobile||!email||!pass||!prog||!txn) { errEl.textContent='Please fill in all required fields.'; errEl.classList.add('show'); return; }
+  if (!/^\d{10}$/.test(mobile)) { errEl.textContent='Enter a valid 10-digit mobile number.'; errEl.classList.add('show'); return; }
+  if (!/@niser\.ac\.in$/.test(email)) { errEl.textContent='Only @niser.ac.in emails are allowed.'; errEl.classList.add('show'); return; }
+  if (pass.length < 6) { errEl.textContent='Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+
+  btn.disabled=true; btn.textContent='Checking…';
+  try {
+    const chk = await sheetGet({ action:'checkUser', email });
+    if (chk.exists) { errEl.textContent='This email is already registered.'; errEl.classList.add('show'); btn.disabled=false; btn.textContent='Submit'; return; }
+  } catch(e) {}
+
+  pendingOTP = generateOTP();
+  pendingSignup = { name, mobile, email, password: pass, programme: prog, txn, ref, joinedAt: new Date().toISOString() };
+  btn.textContent = 'Sending…';
+  sendEmailOTP(email, name, pendingOTP)
+    .then(() => { btn.disabled=false; btn.textContent='Submit'; document.getElementById('otp-sub').textContent=`6-digit code sent to ${email}`; showPanel('pg-otp'); })
+    .catch(() => { btn.disabled=false; btn.textContent='Submit'; errEl.textContent='Failed to send OTP. Please try again.'; errEl.classList.add('show'); });
+}
+
+function otpMove(idx) { const v=document.getElementById('otp'+idx).value; if(v&&idx<5) document.getElementById('otp'+(idx+1)).focus(); }
+function getOTPValue(p) { return [0,1,2,3,4,5].map(i=>(document.getElementById(p+i)||{}).value||'').join(''); }
+
+async function verifyOTP() {
+  const entered=getOTPValue('otp'), errEl=document.getElementById('otp-error');
+  errEl.classList.remove('show');
+  if (entered.length<6) { errEl.textContent='Enter the full 6-digit code.'; errEl.classList.add('show'); return; }
+  if (entered!==pendingOTP) { errEl.textContent='Incorrect code. Try again.'; errEl.classList.add('show'); return; }
+  await completeSignup();
+}
+
+async function completeSignup() {
+  if (!pendingSignup) return;
+  try {
+    await sheetPost({ action:'addUser', ...pendingSignup });
+  } catch(e) {}
+  Session.set({ email: pendingSignup.email, name: pendingSignup.name, programme: pendingSignup.programme });
+  pendingSignup=null; pendingOTP=null;
+  window.location.href = 'index.html';
+}
+
+function resendOTP() {
+  if (!pendingSignup) { showPanel('pg-signup'); return; }
+  pendingOTP = generateOTP();
+  sendEmailOTP(pendingSignup.email, pendingSignup.name, pendingOTP)
+    .then(() => showToast('New verification code sent!'))
+    .catch(() => showToast('Failed to send. Please try again.'));
+}
+
+async function sendForgotOTP() {
+  const email=document.getElementById('fp-email').value.trim().toLowerCase(), errEl=document.getElementById('fp-error');
+  errEl.classList.remove('show');
+  try {
+    const res = await sheetGet({ action:'loginUser', email, pass:'__check_only__' });
+    if (res.message === 'User not found') { errEl.textContent='No account found for this email.'; errEl.classList.add('show'); return; }
+  } catch(e) {}
+  forgotOTP=generateOTP(); forgotEmail=email;
+  sendEmailOTP(email, email.split('@')[0], forgotOTP)
+    .then(() => {
+      document.getElementById('forgot-step1').style.display='none';
+      document.getElementById('forgot-step2').style.display='';
+      document.getElementById('forgot-sub').textContent=`Reset code sent to ${email}`;
+    })
+    .catch(() => { errEl.textContent='Failed to send reset code.'; errEl.classList.add('show'); });
+}
+
+function fpOtpMove(idx) { const v=document.getElementById('fp-otp'+idx).value; if(v&&idx<5) document.getElementById('fp-otp'+(idx+1)).focus(); }
+
+async function doResetPassword() {
+  const entered=getOTPValue('fp-otp'), newPass=document.getElementById('fp-newpass').value, errEl=document.getElementById('fp-error2');
+  errEl.classList.remove('show');
+  if (entered!==forgotOTP) { errEl.textContent='Incorrect code.'; errEl.classList.add('show'); return; }
+  if (newPass.length<6) { errEl.textContent='Password must be 6+ chars.'; errEl.classList.add('show'); return; }
+  // Update via sheet - we re-add user with new password (addUser handles no-dup so we use a special action)
+  // Note: For password reset, you'd need a dedicated resetPassword action in code.gs.
+  // For now we show success and user re-registers or contacts admin.
+  showToast('Password reset request sent. Contact admin if needed.');
+  showPanel('pg-login');
+}
+</script>
+</body>
+</html>

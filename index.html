@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — NISER Mess Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<header class="site-header" id="site-header"></header>
+
+<div class="menu-hero">
+  <div class="menu-hero-title">🍽 NISER Mess Menu</div>
+  <div class="menu-hero-sub">National Institute of Science Education and Research · Bhubaneswar</div>
+  <div class="menu-hero-update" id="update-time">Loading…</div>
+</div>
+
+<nav class="day-nav" id="day-nav"></nav>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:var(--veg)"></div> Vegetarian</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--nonveg)"></div> Non-Veg</div>
+  <div class="leg-item">⭐ = avg rating from users</div>
+  <div class="leg-item"><span class="badge badge-salad">SALAD</span></div>
+  <div class="leg-item"><span class="badge badge-dessert">DESSERT</span></div>
+</div>
+
+<main class="menu-content">
+  <div class="menu-grid" id="menu-grid">
+    <div class="state-box"><div class="spinner"></div><span>Loading…</span></div>
+  </div>
+</main>
+
+<div class="mess-section">
+  <div class="mess-label">Mess Information</div>
+  <div class="mess-pills">
+    <div class="mess-pill">
+      <div class="mess-pill-name"><span class="mdot mdot-veg"></span>Bhagirathi</div>
+      <div class="mess-tags"><span class="mess-tag mt-veg">Pure Veg</span><span class="mess-tag mt-fruit">Fruits</span><span class="mess-tag mt-no">No Egg</span></div>
+    </div>
+    <div class="mess-pill">
+      <div class="mess-pill-name"><span class="mdot mdot-egg"></span>Brahmaputra</div>
+      <div class="mess-tags"><span class="mess-tag mt-egg">Egg</span><span class="mess-tag mt-no">No Fruits</span></div>
+    </div>
+    <div class="mess-pill">
+      <div class="mess-pill-name"><span class="mdot mdot-both"></span>Ganga</div>
+      <div class="mess-tags"><span class="mess-tag mt-egg">Egg</span><span class="mess-tag mt-fruit">Fruits</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="mess-section" style="flex-direction:column;gap:16px;">
+  <div class="mess-label">📍 Directions to Mess</div>
+  <div class="maps-grid">
+    <div class="map-card">
+      <div class="map-card-title"><span class="mdot mdot-both" style="display:inline-block;"></span> Ganga Mess</div>
+      <div class="map-desktop">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1197.146323996733!2d85.68536197684976!3d20.17488355402522!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19aea9da06d951%3A0x43f124a60e88a5af!2s5MFM%2BVXH%2C%20Padanpur%2C%20Odisha%20752050!5e1!3m2!1sen!2sin!4v1776236858147!5m2!1sen!2sin" width="100%" height="240" style="border:0;border-radius:8px;" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="map-mobile"><a href="https://maps.google.com/?q=5MFM+VXHH,+Padanpur,+Odisha+752050" target="_blank" class="map-link-btn">🗺 Open Ganga Mess in Maps</a></div>
+    </div>
+    <div class="map-card">
+      <div class="map-card-title"><span class="mdot mdot-veg" style="display:inline-block;"></span> Bhagirathi Mess</div>
+      <div class="map-desktop">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d811.3634724173959!2d85.68671693475615!3d20.171090726966764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sin!4v1776236973464!5m2!1sen!2sin" width="100%" height="240" style="border:0;border-radius:8px;" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="map-mobile"><a href="https://maps.google.com/?q=20.171090,85.686716" target="_blank" class="map-link-btn">🗺 Open Bhagirathi Mess in Maps</a></div>
+    </div>
+    <div class="map-card">
+      <div class="map-card-title"><span class="mdot mdot-egg" style="display:inline-block;"></span> Brahmaputra Mess</div>
+      <div class="map-desktop">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d811.3634724173959!2d85.68671693475615!3d20.171090726966764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19afc04a8896b7%3A0x73d88479ad202b40!2sCanteen%20Brahmaputra!5e1!3m2!1sen!2sin!4v1776237018429!5m2!1sen!2sin" width="100%" height="240" style="border:0;border-radius:8px;" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="map-mobile"><a href="https://maps.google.com/?q=Canteen+Brahmaputra+NISER+Bhubaneswar" target="_blank" class="map-link-btn">🗺 Open Brahmaputra Mess in Maps</a></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script src="app.js"></script>
+<script>
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZ3e1ImbssqqrpQRO8KuEKvL8Zq69xZVApqriqcvRlisgOFHDzSvXbtyEYLI0UhQBLpLcuoFxtQJ8N/pub?gid=127683587&single=true&output=csv';
+
+renderHeader('menu');
+renderFooter();
+initMenuPage();
+</script>
+</body>
+</html>
